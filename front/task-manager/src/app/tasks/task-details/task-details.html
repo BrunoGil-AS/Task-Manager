@@ -1,0 +1,72 @@
+<div class="task-details-container">
+  <!-- Sidebar -->
+  <app-sidebar class="task-details-sidebar" [mode]="'details'"></app-sidebar>
+
+  <!-- Details Content -->
+  <div class="task-details-content">
+    <!-- Back Button -->
+    <div class="task-details-header">
+      <button class="btn-back" (click)="goBack()">
+        <span>← Volver</span>
+      </button>
+    </div>
+    @if (!showForm()) {
+      <!-- Task Details Card -->
+      <article class="task-details-card" [class.task-details-card--completed]="isCompleted()">
+        <!-- Header with Status -->
+        <div class="details-header">
+          <div class="details-title-section">
+            <h2 class="details-title">{{ taskTitle() }}</h2>
+            <div class="status-badge" [class.status-badge--completed]="isCompleted()">
+              <span class="status-icon">{{ isCompleted() ? '✓' : '⏳' }}</span>
+              <span class="status-text">{{ isCompleted() ? 'Completada' : 'En progreso' }}</span>
+            </div>
+          </div>
+          <div class="details-meta">
+            <div class="meta-item">
+              <span class="meta-label">Creada:</span>
+              <time class="meta-value">{{ createdAt() | date: 'medium' }}</time>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Actualizada:</span>
+              <time class="meta-value">{{ updatedAt() | date: 'medium' }}</time>
+            </div>
+          </div>
+        </div>
+
+        <!-- Description Section -->
+        <div class="details-section">
+          <h3 class="section-title">Descripción</h3>
+          <div class="section-content">
+            <p class="description-text">{{ taskDescription() }}</p>
+          </div>
+        </div>
+
+        <!-- Task ID -->
+        <div class="details-section">
+          <h3 class="section-title">Información</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">ID de tarea:</span>
+              <span class="info-value">{{ task().id }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="details-actions">
+          <button class="btn btn-secondary" (click)="toggleComplete()">
+            {{ isCompleted() ? 'Marcar como pendiente' : 'Marcar como completada' }}
+          </button>
+          <button class="btn btn-primary" (click)="editTask()">Editar</button>
+        </div>
+      </article>
+    } @else {
+      <app-task-form
+        [task]="task()"
+        [showForm]="showForm()"
+        (onSave)="updateTask($event)"
+      ></app-task-form>
+    }
+  </div>
+</div>

@@ -1,0 +1,40 @@
+<aside class="sidebar">
+  <!-- Sidebar Header -->
+  <div class="sidebar-header">
+    <h3>Filtros</h3>
+  </div>
+
+  @if (mode() === 'container') {
+    <!-- Filter Section -->
+    <div class="filter-section">
+      <div class="filter-group">
+        <button class="filter-button filter-button--active" (click)="filterByStatus('all')">
+          <span class="filter-icon">●</span>
+          Todas
+          <span class="filter-count">0</span>
+        </button>
+        <button class="filter-button" (click)="filterByStatus('pending')">
+          <span class="filter-icon pending">●</span>
+          En progreso
+          <span class="filter-count">0</span>
+        </button>
+        <button class="filter-button" (click)="filterByStatus('completed')">
+          <span class="filter-icon completed">●</span>
+          Completadas
+          <span class="filter-count">0</span>
+        </button>
+      </div>
+    </div>
+  } @else {
+    <!-- Task List (for details view) -->
+    <div class="task-list-sidebar">
+      <h4 class="task-list-title">Todas las tareas</h4>
+      <div class="task-list-items">
+        <!-- Task items rendered here -->
+        <button class="task-item" (click)="navigateToTask(1)">
+          <span class="task-item-title">Tarea ejemplo</span>
+        </button>
+      </div>
+    </div>
+  }
+</aside>

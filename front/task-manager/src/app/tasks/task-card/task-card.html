@@ -1,0 +1,25 @@
+<article class="task-card" [class.task-card--completed]="isCompleted()">
+  <!-- Card Header -->
+  <div class="task-card-header">
+    <div class="task-card-status">
+      <div class="status-badge" [class.status-badge--completed]="isCompleted()">
+        <span class="status-icon">{{ isCompleted() ? '✓' : '⏳' }}</span>
+        <span class="status-text">{{ isCompleted() ? 'Completada' : 'En progreso' }}</span>
+      </div>
+    </div>
+    <div class="task-card-date">
+      <time class="task-date">{{ taskDate() | date: 'short' }}</time>
+    </div>
+  </div>
+
+  <!-- Card Title -->
+  <h3 class="task-card-title">{{ taskTitle() }}</h3>
+
+  <!-- Card Description -->
+  <p class="task-card-description">{{ taskDescription() }}</p>
+
+  <!-- Card Footer -->
+  <div class="task-card-footer">
+    <button class="btn btn-primary btn-sm" (click)="goToDetails()">Detalles</button>
+  </div>
+</article>

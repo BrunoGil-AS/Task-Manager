@@ -1,0 +1,237 @@
+/* ====================================== */
+/* VARIABLES GLOBALES - Sistema de Diseño */
+/* ====================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  /* ========== COLORES PRIMARIOS ========== */
+  --color-primary: #4f46e5;
+  --color-primary-light: #6366f1;
+  --color-primary-dark: #4338ca;
+  --color-primary-hover: rgba(79, 70, 229, 0.15);
+
+  --color-secondary: #06b6d4;
+  --color-secondary-light: #22d3ee;
+  --color-secondary-dark: #0891b2;
+  --color-secondary-hover: rgba(6, 182, 212, 0.15);
+
+  /* ========== COLORES DE ACENTO ========== */
+  --color-accent: #667eea;
+  --color-accent-hover: #764ba2;
+
+  /* ========== GRADIENTES ========== */
+  --gradient-primary: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+  --gradient-primary-reverse: linear-gradient(90deg, var(--color-secondary), var(--color-primary));
+  --gradient-vertical: linear-gradient(180deg, var(--color-primary), var(--color-accent));
+
+  /* ========== COLORES NEUTRALES ========== */
+  --color-dark: #0f172a;
+  --color-dark-secondary: #1e293b;
+  --color-gray-700: #374151;
+  --color-gray-600: #4b5563;
+  --color-gray-500: #6b7280;
+  --color-gray-400: #d1d5db;
+  --color-gray-300: #e5e7eb;
+  --color-gray-200: #f3f4f6;
+  --color-gray-100: #f9fafb;
+
+  --color-white: #ffffff;
+  --color-border: #e6e9ee;
+  --color-bg-light: #f8fafc;
+
+  /* ========== COLORES DE ESTADO ========== */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
+
+  /* ========== ESPACIADOS ========== */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 2.5rem;
+  --spacing-3xl: 3rem;
+
+  /* ========== TAMAÑOS DE FUENTE ========== */
+  --font-size-xs: 0.7rem;
+  --font-size-sm: 0.75rem;
+  --font-size-base: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 2rem;
+
+  /* ========== PESOS DE FUENTE ========== */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* ========== BORDER RADIUS ========== */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-full: 9999px;
+
+  /* ========== SOMBRAS ========== */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.15);
+  --shadow-xl: 0 10px 40px rgba(0, 0, 0, 0.1);
+
+  /* ========== TRANSICIONES ========== */
+  --transition-fast: 0.2s ease;
+  --transition-base: 0.3s ease;
+  --transition-slow: 0.5s ease;
+
+  /* ========== ALTURA MÍNIMA PARA ACCESIBILIDAD ========== */
+  --min-touch-height: 44px;
+  --min-touch-height-sm: 36px;
+  --min-touch-height-xs: 32px;
+
+  /* ========== BREAKPOINTS (para referencia) ========== */
+  /* Móvil: < 480px */
+  /* Small Mobile: 480px - 768px */
+  /* Tablet: 768px - 1024px */
+  /* Desktop: 1024px - 1200px */
+  /* Large Desktop: > 1200px */
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif,
+    'Apple Color Emoji',
+    'Segoe UI Emoji',
+    'Segoe UI Symbol';
+  font-size: 16px;
+  color: var(--color-dark);
+  background: var(--color-white);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ====== TIPOGRAFÍA GLOBAL ====== */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  font-weight: var(--font-weight-bold);
+  line-height: 1.2;
+}
+
+h1 {
+  font-size: clamp(1.5rem, 5vw, var(--font-size-3xl));
+}
+
+h2 {
+  font-size: clamp(1.25rem, 4vw, var(--font-size-2xl));
+}
+
+h3 {
+  font-size: clamp(1.1rem, 3vw, var(--font-size-xl));
+}
+
+p {
+  margin: 0;
+  color: var(--color-gray-700);
+  font-size: var(--font-size-md);
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color var(--transition-base);
+}
+
+a:hover {
+  color: var(--color-primary-dark);
+}
+
+/* ====== BOTONES GLOBALES ====== */
+button {
+  font-family: inherit;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  border: none;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-base);
+  min-height: var(--min-touch-height-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+}
+
+/* ====== FORMULARIOS ====== */
+input,
+textarea,
+select {
+  font-family: inherit;
+  font-size: var(--font-size-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition: border-color var(--transition-base);
+  min-height: var(--min-touch-height-sm);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+/* ====== LISTAS ====== */
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+li {
+  margin: 0;
+}
+
+/* ====== MEDIA QUERIES HELPER ====== */
+/* Mobile: max-width 767px */
+@media screen and (max-width: 767px) {
+  :root {
+    font-size: 15px;
+  }
+}
+
+/* Small Mobile: max-width 768px */
+@media screen and (max-width: 768px) {
+  :root {
+    font-size: 14px;
+  }
+}
+
+/* Mobile: max-width 480px */
+@media screen and (max-width: 480px) {
+  :root {
+    font-size: 13px;
+  }
+}

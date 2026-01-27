@@ -1,0 +1,26 @@
+<div class="tasks-container">
+  <!-- Sidebar -->
+  <app-sidebar class="tasks-sidebar" [mode]="'container'"></app-sidebar>
+
+  <!-- Task List Content -->
+  <div class="tasks-content">
+    <div class="tasks-header">
+      <h2>Tareas</h2>
+      <p class="tasks-count">Total: <span id="totalCount">0</span> tareas</p>
+    </div>
+
+    <div class="tasks-list">
+      <div class="task-cards-grid">
+        <!-- TaskCard components will be rendered here -->
+        @for (task of tasks(); track task.id) {
+          <app-task-card [task]="task"></app-task-card>
+        }
+      </div>
+
+      <!-- Empty state -->
+      <div class="empty-state">
+        <p>No hay tareas para mostrar</p>
+      </div>
+    </div>
+  </div>
+</div>
