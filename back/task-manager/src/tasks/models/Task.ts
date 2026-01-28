@@ -1,6 +1,6 @@
 import type User from "../../users/model/User.js";
-
-export default interface Task {
+import type { Database } from "../../types/supabase.js";
+export interface TaskDTO {
   id: number;
   owner: User;
   title: string;
@@ -8,4 +8,14 @@ export default interface Task {
   completed: boolean;
   createdAt: Date;
   updatedAt: Date;
+}
+export interface CreateTaskDTO {
+  title: string;
+  description?: string;
+}
+
+export interface UpdateTaskDTO {
+  title?: string;
+  description?: string;
+  completed?: boolean;
 }

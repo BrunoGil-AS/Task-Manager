@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { taskController } from "../controllers/TaskController.js";
+import taskController from "../controllers/TaskController.js";
 import { validateBody } from "../middleware/validateBody.js";
 import { createTaskSchema } from "../schemas/TaskSchema.js";
 
@@ -18,7 +18,7 @@ router.get("/:id", taskController.getTaskById);
 router.put("/:id", taskController.updateTask);
 
 // PATCH partial update
-router.patch("/:id", taskController.partialUpdateTask);
+router.patch("/:id/toggle", taskController.toggleTask);
 
 // DELETE task
 router.delete("/:id", taskController.deleteTask);

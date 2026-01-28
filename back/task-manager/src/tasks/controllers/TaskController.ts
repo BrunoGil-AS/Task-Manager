@@ -1,115 +1,205 @@
-// controllers/taskController.ts
-import { type Request, type Response } from "express";
-import type Task from "../models/Task.js";
-import { tasks, getNextId } from "../data/tasks.js";
-import { users } from "../../users/data/users.js";
+import type { Request, Response } from "express";
+import taskService from "../services/taskService.js";
+import type { CreateTaskDTO, UpdateTaskDTO } from "../models/Task.js";
 
-export const taskController = {
-  // GET all tasks
-  getAllTasks: (req: Request, res: Response): void => {
-    // Pagination support
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 10;
-    const startIndex = (page - 1) * limit;
+export class TaskController {
+  async getAllTasks(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = req.user?.sub;
+      if (!userId) {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+      }
 
-    const paginatedTasks = tasks.slice(startIndex, startIndex + limit);
-
-    res.json({
-      data: paginatedTasks,
-      pagination: {
-        page,
-        limit,
-        total: tasks.length,
-      },
-    });
-  },
-
-  // GET task by ID
-  getTaskById: (req: Request, res: Response): void => {
-    const task = tasks.find((t) => t.id === parseInt(req.params.id!));
-
-    if (!task) {
-      res.status(404).json({ error: "Task not found" });
-      return;
+      const tasks = await taskService.getTasksByUser(userId);
+      res.status(200).json({ success: true, data: tasks, count: tasks.length });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
     }
+  }
 
-    res.json(task);
-  },
+  async getTaskById(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = req.user?.sub;
+      const taskId = req.params.id ? parseInt(req.params.id) : NaN;
 
-  // POST create task
-  createTask: (req: Request, res: Response): void => {
-    const { title, description, owner, completed } = req.body;
+      if (!userId) {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+      }
 
-    if (!users.some((u) => u.id === owner.id)) {
-      users.push(owner);
+      if (isNaN(taskId)) {
+        res.status(400).json({ error: "Invalid task ID" });
+        return;
+      }
+
+      const task = await taskService.getTaskById(taskId, userId);
+      if (!task) {
+        res.status(404).json({ error: "Task not found" });
+        return;
+      }
+
+      res.status(200).json({ success: true, data: task });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
     }
-    // Validation
-    if (!title || title.trim() === "") {
-      res.status(400).json({ error: "Title is required" });
-      return;
+  }
+
+  async createTask(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = req.user?.sub;
+      if (!userId) {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+      }
+
+      const { title, description } = req.body as CreateTaskDTO;
+
+      if (!title?.trim()) {
+        res.status(400).json({ error: "Title is required" });
+        return;
+      }
+
+      const taskData: CreateTaskDTO = {
+        title: title.trim(),
+        description: description!.trim(),
+      };
+
+      const newTask = await taskService.createTask(userId, taskData);
+      res.status(201).json({
+        success: true,
+        data: newTask,
+        message: "Task created successfully",
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
     }
+  }
 
-    const newTask: Task = {
-      id: getNextId(),
-      owner,
-      title,
-      description,
-      completed: typeof completed === "boolean" ? completed : false,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
+  async updateTask(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = req.user?.sub;
+      const taskId = req.params.id ? parseInt(req.params.id) : NaN;
 
-    tasks.push(newTask);
-    res.status(201).json(newTask);
-  },
+      if (!userId) {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+      }
 
-  // PUT update task
-  updateTask: (req: Request, res: Response): void => {
-    const task = tasks.find((t) => t.id === parseInt(req.params.id!));
+      if (isNaN(taskId)) {
+        res.status(400).json({ error: "Invalid task ID" });
+        return;
+      }
 
-    if (!task) {
-      res.status(404).json({ error: "Task not found" });
-      return;
+      const { title, description, completed } = req.body;
+      const updateData: UpdateTaskDTO = {};
+
+      if (title !== undefined) updateData.title = title.trim();
+      if (description !== undefined)
+        updateData.description = description?.trim() || null;
+      if (completed !== undefined) updateData.completed = completed;
+
+      if (Object.keys(updateData).length === 0) {
+        res.status(400).json({ error: "No data to update" });
+        return;
+      }
+
+      const updatedTask = await taskService.updateTask(
+        taskId,
+        userId,
+        updateData,
+      );
+      if (!updatedTask) {
+        res.status(404).json({ error: "Task not found" });
+        return;
+      }
+
+      res.status(200).json({
+        success: true,
+        data: updatedTask,
+        message: "Task updated successfully",
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
     }
+  }
 
-    if (req.body.title) task.title = req.body.title;
-    if (req.body.description !== undefined)
-      task.description = req.body.description;
-    if (req.body.completed !== undefined) task.completed = req.body.completed;
-    task.updatedAt = new Date();
+  async toggleTask(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = req.user?.sub;
+      const taskId = req.params.id ? parseInt(req.params.id) : NaN;
 
-    res.json(task);
-  },
+      if (!userId) {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+      }
 
-  // PATCH partial update
-  partialUpdateTask: (req: Request, res: Response): void => {
-    const task = tasks.find((t) => t.id === parseInt(req.params.id!));
+      if (isNaN(taskId)) {
+        res.status(400).json({ error: "Invalid task ID" });
+        return;
+      }
 
-    if (!task) {
-      res.status(404).json({ error: "Task not found" });
-      return;
+      const updatedTask = await taskService.toggleTaskCompletion(
+        taskId,
+        userId,
+      );
+      if (!updatedTask) {
+        res.status(404).json({ error: "Task not found" });
+        return;
+      }
+
+      res.status(200).json({
+        success: true,
+        data: updatedTask,
+        message: "Task status toggled",
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
     }
+  }
 
-    // Update only provided fields
-    Object.assign(task, {
-      ...req.body,
-      updatedAt: new Date(),
-      id: task.id, // Don't allow ID change
-    });
+  async deleteTask(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = req.user?.sub;
+      const taskId = req.params.id ? parseInt(req.params.id) : NaN;
 
-    res.json(task);
-  },
+      if (!userId) {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+      }
 
-  // DELETE task
-  deleteTask: (req: Request, res: Response): void => {
-    const index = tasks.findIndex((t) => t.id === parseInt(req.params.id!));
+      if (isNaN(taskId)) {
+        res.status(400).json({ error: "Invalid task ID" });
+        return;
+      }
 
-    if (index === -1) {
-      res.status(404).json({ error: "Task not found" });
-      return;
+      await taskService.deleteTask(taskId, userId);
+      res.status(200).json({
+        success: true,
+        message: "Task deleted successfully",
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
     }
+  }
+}
 
-    const deletedTask = tasks.splice(index, 1)[0];
-    res.json({ message: "Task deleted", task: deletedTask });
-  },
-};
+export default new TaskController();

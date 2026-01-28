@@ -17,3 +17,5 @@ out/
 .github/
 .hintrc
 supabase/.temp
+docs/support_material.md
+docs/support_auth.md
