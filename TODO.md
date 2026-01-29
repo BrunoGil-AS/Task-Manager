@@ -227,16 +227,16 @@
 
 ### Database Setup
 
-- [ ] Create tasks table in Supabase
-  - [ ] Define columns (id, title, description, completed, user_id, timestamps)
-  - [ ] Set up primary keys
-  - [ ] Set up foreign keys
-  - [ ] Add indexes
-- [ ] Create users table
-  - [ ] Define columns
-  - [ ] Set up primary key
-  - [ ] Link to auth.users
-- [ ] Verify table creation in Supabase Dashboard
+- [x] Create tasks table in Supabase
+  - [x] Define columns (id, title, description, completed, user_id, timestamps)
+  - [x] Set up primary keys
+  - [x] Set up foreign keys
+  - [x] Add indexes
+- [x] Create users table
+  - [x] Define columns
+  - [x] Set up primary key
+  - [x] Link to auth.users
+- [x] Verify table creation in Supabase Dashboard
 
 ### Row Level Security (RLS)
 

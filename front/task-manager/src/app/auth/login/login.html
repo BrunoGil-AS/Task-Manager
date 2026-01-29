@@ -1,0 +1,77 @@
+<div class="auth-container">
+  <div class="auth-card">
+    <h2>Iniciar Sesión</h2>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <!-- Email -->
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          placeholder="tu@email.com"
+          [class.invalid]="email?.invalid && email?.touched"
+        />
+        @if (email?.invalid && email?.touched) {
+          <div class="error-message">
+            @if (email?.errors?.['required']) {
+              <span>El email es requerido</span>
+            }
+            @if (email?.errors?.['email']) {
+              <span>Email inválido</span>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Password -->
+      <div class="form-group">
+        <label for="password">Contraseña</label>
+        <input
+          id="password"
+          type="password"
+          formControlName="password"
+          placeholder="••••••••"
+          [class.invalid]="password?.invalid && password?.touched"
+        />
+        @if (password?.invalid && password?.touched) {
+          <div class="error-message">
+            @if (password?.errors?.['required']) {
+              <span>La contraseña es requerida</span>
+            }
+            @if (password?.errors?.['minlength']) {
+              <span>Mínimo 6 caracteres</span>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Error general -->
+      @if (errorMessage) {
+        <div class="error-message">
+          {{ errorMessage }}
+        </div>
+      }
+
+      <!-- Botones -->
+      <button
+        type="submit"
+        class="btn-primary"
+        [disabled]="(loading$ | async) || loginForm.invalid"
+      >
+        @if (!(loading$ | async)) {
+          <span>Iniciar Sesión</span>
+        }
+        @if (loading$ | async) {
+          <span>Cargando...</span>
+        }
+      </button>
+
+      <div class="auth-links">
+        <a routerLink="/auth/register">¿No tienes cuenta? Regístrate</a>
+        <a routerLink="/auth/forgot-password">¿Olvidaste tu contraseña?</a>
+      </div>
+    </form>
+  </div>
+</div>

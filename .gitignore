@@ -19,3 +19,4 @@ out/
 supabase/.temp
 docs/support_material.md
 docs/support_auth.md
+front/task-manager/src/app/core/environment.ts
