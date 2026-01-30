@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../auth.service';
 import { AsyncPipe } from '@angular/common';
 
@@ -8,7 +8,7 @@ import { AsyncPipe } from '@angular/common';
   selector: 'app-login',
   templateUrl: './login.html',
   styleUrls: ['./login.css'],
-  imports: [AsyncPipe, ReactiveFormsModule],
+  imports: [AsyncPipe, ReactiveFormsModule, RouterLink],
 })
 export class LoginComponent {
   private fb = inject(FormBuilder);
@@ -37,7 +37,7 @@ export class LoginComponent {
 
     this.authService.signIn(credentials).subscribe({
       next: () => {
-        this.router.navigate(['/tasks']);
+        this.router.navigate(['/home']);
       },
       error: (error) => {
         console.error('Login error:', error);

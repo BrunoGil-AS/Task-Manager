@@ -1,16 +1,27 @@
+/* ====================================== */
+/* TASKS CONTAINER - Layout Principal */
+/* ====================================== */
+
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 .tasks-container {
   display: flex;
   width: 100%;
   height: 100%;
   gap: var(--spacing-lg);
   padding: var(--spacing-xl);
-  background-color: var(--color-bg-light);
+  background: linear-gradient(180deg, var(--color-bg-light) 0%, var(--color-white) 95%);
 }
 
 .tasks-sidebar {
   flex-shrink: 0;
   width: 250px;
   height: 100%;
+  overflow-y: auto;
 }
 
 .tasks-content {
@@ -19,12 +30,14 @@
   flex-direction: column;
   gap: var(--spacing-lg);
   overflow-y: auto;
+  min-width: 0;
 }
 
 .tasks-header {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
+  flex-shrink: 0;
 }
 
 .tasks-header h2 {
@@ -37,6 +50,7 @@
 .tasks-count {
   font-size: var(--font-size-base);
   color: var(--color-gray-600);
+  margin: 0;
 }
 
 .tasks-count span {
@@ -49,19 +63,22 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
+  overflow-y: auto;
+  min-height: 0;
 }
 
 .task-cards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: var(--spacing-lg);
+  width: 100%;
 }
 
 .empty-state {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 300px;
+  min-height: 400px;
   padding: var(--spacing-xl);
   text-align: center;
   color: var(--color-gray-500);
@@ -92,6 +109,11 @@
   .task-cards-grid {
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   }
+
+  .tasks-container {
+    padding: var(--spacing-lg);
+    gap: var(--spacing-md);
+  }
 }
 
 /* Mobile (< 768px) */
@@ -100,6 +122,7 @@
     flex-direction: column;
     padding: var(--spacing-lg);
     gap: var(--spacing-md);
+    height: auto;
   }
 
   .tasks-sidebar {
@@ -117,5 +140,34 @@
 
   .tasks-header h2 {
     font-size: var(--font-size-xl);
+  }
+
+  .tasks-list {
+    overflow-y: visible;
+  }
+
+  .empty-state {
+    min-height: 300px;
+  }
+}
+
+/* Small Mobile (< 480px) */
+@media screen and (max-width: 480px) {
+  .tasks-container {
+    padding: var(--spacing-md);
+    gap: var(--spacing-sm);
+  }
+
+  .tasks-header h2 {
+    font-size: var(--font-size-lg);
+  }
+
+  .task-cards-grid {
+    gap: var(--spacing-md);
+  }
+
+  .empty-state {
+    min-height: 250px;
+    padding: var(--spacing-lg);
   }
 }

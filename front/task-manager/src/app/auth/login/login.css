@@ -188,23 +188,37 @@ form {
 }
 
 .auth-links a {
+  display: block;
+  padding: var(--spacing-sm) var(--spacing-md);
   font-size: var(--font-size-sm);
   color: var(--color-primary);
   text-align: center;
   transition: all var(--transition-base);
   font-weight: var(--font-weight-medium);
   text-decoration: none;
+  min-height: var(--min-touch-height-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  pointer-events: auto;
+  cursor: pointer;
 }
 
 .auth-links a:hover {
   color: var(--color-primary-dark);
   text-decoration: underline;
+  background-color: var(--color-primary-hover);
 }
 
 .auth-links a:focus {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
-  border-radius: var(--radius-sm);
+  background-color: var(--color-primary-hover);
+}
+
+.auth-links a:active {
+  transform: scale(0.98);
 }
 
 /* ========== RESPONSIVIDAD ========== */

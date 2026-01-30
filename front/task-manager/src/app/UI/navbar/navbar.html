@@ -1,7 +1,10 @@
 <nav class="navbar">
   <h1 class="brand">Task Manager</h1>
   <div class="nav-links">
-    <button class="nav-button" (click)="navigate('/')">Home</button>
+    <button class="nav-button" (click)="navigate('/home')">Home</button>
     <button class="nav-button" (click)="navigate('/tasks')">Tasks</button>
+    @if (currentUser$ | async) {
+      <button (click)="logout()" class="btn-logout">Cerrar Sesión</button>
+    }
   </div>
 </nav>

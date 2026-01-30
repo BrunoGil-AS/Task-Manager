@@ -1,6 +1,7 @@
 import { DecimalPipe } from '@angular/common';
 import { TaskService } from './../tasks/service/task-service';
 import { Component, inject } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -10,6 +11,7 @@ import { Component, inject } from '@angular/core';
 })
 export class Home {
   taskService = inject(TaskService);
+  private router = inject(Router);
 
   completedCount(): number {
     return this.taskService.tasks().filter((task) => task.completed).length;
@@ -30,6 +32,6 @@ export class Home {
   }
 
   navigateToTasks() {
-    window.location.href = '/tasks';
+    this.router.navigate(['/tasks']);
   }
 }
