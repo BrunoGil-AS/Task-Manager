@@ -2,9 +2,11 @@ import { Router } from "express";
 import taskController from "../controllers/TaskController.js";
 import { validateBody } from "../middleware/validateBody.js";
 import { createTaskSchema } from "../schemas/TaskSchema.js";
+import { authenticateUser } from "../../middleware/auth.js";
 
 const router = Router();
 
+router.use(authenticateUser);
 // GET all tasks
 router.get("/", taskController.getAllTasks);
 
