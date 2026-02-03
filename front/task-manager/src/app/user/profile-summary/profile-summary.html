@@ -1,0 +1,22 @@
+<article class="profile-card profile-card--summary">
+  <div class="profile-avatar" aria-hidden="true">
+    {{ user().name?.charAt(0) || 'U' }}
+  </div>
+  <div class="profile-summary">
+    <h3 class="profile-name">{{ user().name }}</h3>
+    <p class="profile-email">{{ user().email }}</p>
+  </div>
+  <div class="profile-meta">
+    <div class="meta-item">
+      <span class="meta-label">ID de usuario</span>
+      <span class="meta-value">{{ user().id }}</span>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">Estado</span>
+      <span class="meta-value meta-value--success">Activo</span>
+    </div>
+  </div>
+  <button class="btn btn-outline" type="button" (click)="signOut()">
+    Cerrar sesión
+  </button>
+</article>

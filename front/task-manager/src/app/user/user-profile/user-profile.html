@@ -1,0 +1,31 @@
+<section class="profile-container">
+  <div class="profile-content">
+    <header class="profile-header">
+      <div class="profile-title">
+        <h2>Mi perfil</h2>
+        <p>Administra tu información personal y tu sesión</p>
+      </div>
+      <div class="profile-header__actions">
+        <button class="btn btn-secondary" type="button">Editar perfil</button>
+        <button class="btn btn-primary" type="button">Guardar cambios</button>
+      </div>
+    </header>
+
+    @if (user$ | async; as user) {
+      <div class="profile-grid">
+        <app-user-profile-summary [user]="user"></app-user-profile-summary>
+        <app-user-profile-form
+          [user]="user"
+          (onSave)="handleSave($event)"
+          (onCancel)="handleCancel()"
+        ></app-user-profile-form>
+        <app-user-profile-security></app-user-profile-security>
+      </div>
+    } @else {
+      <div class="profile-empty">
+        <h3>No hay información disponible</h3>
+        <p>Inicia sesión para ver los detalles de tu perfil.</p>
+      </div>
+    }
+  </div>
+</section>

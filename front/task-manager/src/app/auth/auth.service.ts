@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, from, of } from 'rxjs';
-import { map, catchError, tap, switchMap } from 'rxjs/operators';
+import { map, catchError, tap, switchMap, finalize } from 'rxjs/operators';
 import { AuthChangeEvent, Session, User } from '@supabase/supabase-js';
 import SupabaseService from '../supabase/supabase.service';
 import { LoginCredentials, RegisterData, AuthUser } from './models/auth.model';
@@ -10,11 +10,15 @@ import { LoginCredentials, RegisterData, AuthUser } from './models/auth.model';
   providedIn: 'root',
 })
 export class AuthService {
-  // BehaviorSubject para el usuario actual
+  // BehaviorSubject for the current authenticated user
   private currentUserSubject = new BehaviorSubject<AuthUser | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
-  // BehaviorSubject para el estado de carga
+  // Emits true once the initial session restoration attempt has finished
+  private initializedSubject = new BehaviorSubject<boolean>(false);
+  public initialized$ = this.initializedSubject.asObservable();
+
+  // BehaviorSubject for the loading state
   private loadingSubject = new BehaviorSubject<boolean>(false);
   public loading$ = this.loadingSubject.asObservable();
 
@@ -22,15 +26,17 @@ export class AuthService {
     private supabaseService: SupabaseService,
     private router: Router,
   ) {
-    // Inicializar sesión al cargar la app
+    // Initialize session when the app loads
     this.initializeAuth();
   }
 
   /**
-   * Inicializar autenticación y escuchar cambios
+   * Initialize authentication and listen to session changes.
+   * Important: session restoration is async; initialized$ flips to true
+   * once the initial getSession() flow completes.
    */
   private initializeAuth(): void {
-    // Restaurar sesión existente
+    // Restore existing session
     from(this.supabaseService.client.auth.getSession())
       .pipe(
         map(({ data: { session } }) => session),
@@ -39,21 +45,24 @@ export class AuthService {
             this.setCurrentUser(session.user);
           }
         }),
+        finalize(() => {
+          this.initializedSubject.next(true);
+        }),
       )
       .subscribe();
 
-    // Escuchar cambios de autenticación
+    // Listen to authentication changes
     this.supabaseService.client.auth.onAuthStateChange(
       (event: AuthChangeEvent, session: Session | null) => {
         console.log('Auth state changed:', event);
-
+        console.log(session);
         if (session?.user) {
           this.setCurrentUser(session.user);
         } else {
           this.currentUserSubject.next(null);
         }
 
-        // Manejar eventos específicos
+        // Handle specific events
         if (event === 'SIGNED_OUT') {
           this.router.navigate(['/auth/login']);
         }
@@ -62,7 +71,7 @@ export class AuthService {
   }
 
   /**
-   * Establecer usuario actual
+   * Set current user
    */
   private setCurrentUser(user: User): void {
     const authUser: AuthUser = {
@@ -74,7 +83,7 @@ export class AuthService {
   }
 
   /**
-   * Registrar nuevo usuario
+   * Register a new user
    */
   signUp(data: RegisterData): Observable<{ success: boolean; message: string }> {
     this.loadingSubject.next(true);
@@ -93,7 +102,7 @@ export class AuthService {
       map(({ data: authData, error }) => {
         if (error) throw error;
 
-        // Verificar si necesita confirmación por email
+        // Check if email confirmation is required
         if (authData.user && !authData.session) {
           return {
             success: true,
@@ -115,7 +124,7 @@ export class AuthService {
   }
 
   /**
-   * Iniciar sesión con email y contraseña
+   * Sign in with email and password
    */
   signIn(credentials: LoginCredentials): Observable<{ success: boolean }> {
     this.loadingSubject.next(true);
@@ -144,7 +153,7 @@ export class AuthService {
   }
 
   /**
-   * Cerrar sesión
+   * Sign out
    */
   signOut(): Observable<void> {
     this.loadingSubject.next(true);
@@ -166,7 +175,7 @@ export class AuthService {
   }
 
   /**
-   * Obtener token de acceso actual
+   * Get current access token
    */
   async getAccessToken(): Promise<string | null> {
     const {
@@ -176,21 +185,21 @@ export class AuthService {
   }
 
   /**
-   * Obtener usuario actual (síncrono)
+   * Get current user (synchronous)
    */
   get currentUser(): AuthUser | null {
     return this.currentUserSubject.value;
   }
 
   /**
-   * Verificar si el usuario está autenticado (síncrono)
+   * Check if the user is authenticated (synchronous)
    */
   get isAuthenticated(): boolean {
     return this.currentUserSubject.value !== null;
   }
 
   /**
-   * Enviar email de recuperación de contraseña
+   * Send password reset email
    */
   resetPassword(email: string): Observable<{ success: boolean; message: string }> {
     this.loadingSubject.next(true);
@@ -217,7 +226,7 @@ export class AuthService {
   }
 
   /**
-   * Actualizar contraseña
+   * Update password
    */
   updatePassword(newPassword: string): Observable<{ success: boolean }> {
     this.loadingSubject.next(true);

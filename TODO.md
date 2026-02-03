@@ -84,18 +84,18 @@
 - [x] Create User.ts model
 - [x] Create UserSchema.ts validation
 - [x] Create users.ts data access
-- [ ] Create user routes and controller
-- [ ] Implement user profile endpoints
-- [ ] Implement endpoint: GET /api/users/profile - Get current user profile
-- [ ] Implement endpoint: PUT /api/users/profile - Update profile
-- [ ] Implement endpoint: DELETE /api/users - Delete account
+- [x] Create user routes and controller
+- [x] Implement user profile endpoints
+- [x] Implement endpoint: GET /api/users/profile - Get current user profile
+- [x] Implement endpoint: PUT /api/users/profile - Update profile
+- [ ] Implement endpoint: DELETE /api/users - Delete account `review this`
 - [ ] Test user endpoints
 
 ### Authentication & Middleware
 
 - [x] Create auth.ts authentication middleware
 - [x] Create errorHandler.ts centralized error handling
-- [ ] Verify JWT token validation works
+- [x] Verify JWT token validation works
 - [ ] Test auth middleware on protected routes
 - [ ] Add request logging middleware improvements
 - [ ] Add rate limiting middleware
@@ -121,7 +121,6 @@
 - [x] Install rxjs
 - [x] Configure TypeScript (tsconfig.json, tsconfig.app.json, tsconfig.spec.json)
 - [x] Create environment.ts for development
-- [ ] Create environment.prod.ts for production
 - [x] Configure API_BASE_URL in core/api-routes.ts
 
 ### Frontend: Project Structure

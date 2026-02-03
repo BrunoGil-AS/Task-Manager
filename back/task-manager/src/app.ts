@@ -1,13 +1,12 @@
 import express from "express";
-import router from "./tasks/routes/router.js";
+import tasksRouter from "./tasks/routes/router.js";
+import usersRouter from "./users/routes/router.js";
 import { loggingMiddleware } from "./middleware/loggingMiddleware.js";
 import cors from "cors";
 import ApiError from "./error/ApiError.js";
 import { errorHandler } from "./error/errorHandler.js";
 import helmet from "helmet";
 import dotenv from "dotenv";
-
-const tasksRouter = router;
 
 const app = express();
 
@@ -25,6 +24,7 @@ app.use(cors());
 
 // API routes
 app.use("/api/tasks", tasksRouter);
+app.use("/api/users", usersRouter);
 // Health check
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "OK" });

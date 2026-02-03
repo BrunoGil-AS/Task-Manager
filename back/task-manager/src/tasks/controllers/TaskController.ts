@@ -6,12 +6,14 @@ export class TaskController {
   async getAllTasks(req: Request, res: Response): Promise<void> {
     try {
       const userId = req.user?.sub;
-      if (!userId) {
+      const accessToken = req.user?.accessToken; // ← Extraer token
+
+      if (!userId || !accessToken) {
         res.status(401).json({ error: "Unauthorized" });
         return;
       }
 
-      const tasks = await taskService.getTasksByUser(userId);
+      const tasks = await taskService.getTasksByUser(userId, accessToken);
       res.status(200).json({ success: true, data: tasks, count: tasks.length });
     } catch (error) {
       res.status(500).json({
@@ -26,7 +28,9 @@ export class TaskController {
       const userId = req.user?.sub;
       const taskId = req.params.id ? parseInt(req.params.id) : NaN;
 
-      if (!userId) {
+      const accessToken = req.user?.accessToken; // ← Extraer token
+
+      if (!userId || !accessToken) {
         res.status(401).json({ error: "Unauthorized" });
         return;
       }
@@ -36,7 +40,7 @@ export class TaskController {
         return;
       }
 
-      const task = await taskService.getTaskById(taskId, userId);
+      const task = await taskService.getTaskById(taskId, userId, accessToken);
       if (!task) {
         res.status(404).json({ error: "Task not found" });
         return;
@@ -54,7 +58,9 @@ export class TaskController {
   async createTask(req: Request, res: Response): Promise<void> {
     try {
       const userId = req.user?.sub;
-      if (!userId) {
+      const accessToken = req.user?.accessToken; // ← Extraer token
+
+      if (!userId || !accessToken) {
         res.status(401).json({ error: "Unauthorized" });
         return;
       }
@@ -71,7 +77,11 @@ export class TaskController {
         description: description!.trim(),
       };
 
-      const newTask = await taskService.createTask(userId, taskData);
+      const newTask = await taskService.createTask(
+        userId,
+        taskData,
+        accessToken,
+      );
       res.status(201).json({
         success: true,
         data: newTask,
@@ -90,7 +100,9 @@ export class TaskController {
       const userId = req.user?.sub;
       const taskId = req.params.id ? parseInt(req.params.id) : NaN;
 
-      if (!userId) {
+      const accessToken = req.user?.accessToken; // ← Extraer token
+
+      if (!userId || !accessToken) {
         res.status(401).json({ error: "Unauthorized" });
         return;
       }
@@ -117,6 +129,7 @@ export class TaskController {
         taskId,
         userId,
         updateData,
+        accessToken,
       );
       if (!updatedTask) {
         res.status(404).json({ error: "Task not found" });
@@ -141,7 +154,9 @@ export class TaskController {
       const userId = req.user?.sub;
       const taskId = req.params.id ? parseInt(req.params.id) : NaN;
 
-      if (!userId) {
+      const accessToken = req.user?.accessToken; // ← Extraer token
+
+      if (!userId || !accessToken) {
         res.status(401).json({ error: "Unauthorized" });
         return;
       }
@@ -154,6 +169,7 @@ export class TaskController {
       const updatedTask = await taskService.toggleTaskCompletion(
         taskId,
         userId,
+        accessToken,
       );
       if (!updatedTask) {
         res.status(404).json({ error: "Task not found" });
@@ -178,7 +194,9 @@ export class TaskController {
       const userId = req.user?.sub;
       const taskId = req.params.id ? parseInt(req.params.id) : NaN;
 
-      if (!userId) {
+      const accessToken = req.user?.accessToken; // ← Extraer token
+
+      if (!userId || !accessToken) {
         res.status(401).json({ error: "Unauthorized" });
         return;
       }
@@ -188,7 +206,7 @@ export class TaskController {
         return;
       }
 
-      await taskService.deleteTask(taskId, userId);
+      await taskService.deleteTask(taskId, userId, accessToken);
       res.status(200).json({
         success: true,
         message: "Task deleted successfully",

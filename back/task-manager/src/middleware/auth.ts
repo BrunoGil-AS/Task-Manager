@@ -8,6 +8,7 @@ declare global {
       user?: {
         sub: string; // user ID
         email: string | undefined;
+        accessToken: string;
       };
     }
   }
@@ -40,6 +41,7 @@ export async function authenticateUser(
     req.user = {
       sub: payload.sub as string,
       email: payload.email as string | undefined,
+      accessToken: token,
     };
 
     next();

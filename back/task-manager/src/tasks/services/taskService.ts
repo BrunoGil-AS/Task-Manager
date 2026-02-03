@@ -1,4 +1,4 @@
-import supabase from "../../config/supabaseClient.js";
+import { createAuthenticatedClient } from "../../config/supabaseClient.js";
 import type { Task } from "../../types/database.types.js";
 import type { CreateTaskDTO, UpdateTaskDTO } from "../models/Task.js";
 
@@ -6,7 +6,8 @@ export class TaskService {
   /**
    * Obtener todas las tareas de un usuario
    */
-  async getTasksByUser(userId: string): Promise<Task[]> {
+  async getTasksByUser(userId: string, accessToken: string): Promise<Task[]> {
+    const supabase = createAuthenticatedClient(accessToken);
     const { data, error } = await supabase
       .from("tasks")
       .select("*")
@@ -20,7 +21,12 @@ export class TaskService {
   /**
    * Obtener una tarea por ID
    */
-  async getTaskById(taskId: number, userId: string): Promise<Task | null> {
+  async getTaskById(
+    taskId: number,
+    userId: string,
+    accessToken: string,
+  ): Promise<Task | null> {
+    const supabase = createAuthenticatedClient(accessToken);
     const { data, error } = await supabase
       .from("tasks")
       .select("*")
@@ -39,7 +45,12 @@ export class TaskService {
   /**
    * Crear una nueva tarea
    */
-  async createTask(userId: string, taskData: CreateTaskDTO): Promise<Task> {
+  async createTask(
+    userId: string,
+    taskData: CreateTaskDTO,
+    accessToken: string,
+  ): Promise<Task> {
+    const supabase = createAuthenticatedClient(accessToken);
     const { data, error } = await supabase
       .from("tasks")
       .insert({
@@ -61,7 +72,9 @@ export class TaskService {
     taskId: number,
     userId: string,
     updateData: UpdateTaskDTO,
+    accessToken: string,
   ): Promise<Task | null> {
+    const supabase = createAuthenticatedClient(accessToken);
     const { data, error } = await supabase
       .from("tasks")
       .update(updateData)
@@ -81,7 +94,12 @@ export class TaskService {
   /**
    * Eliminar una tarea
    */
-  async deleteTask(taskId: number, userId: string): Promise<boolean> {
+  async deleteTask(
+    taskId: number,
+    userId: string,
+    accessToken: string,
+  ): Promise<boolean> {
+    const supabase = createAuthenticatedClient(accessToken);
     const { error } = await supabase
       .from("tasks")
       .delete()
@@ -98,15 +116,21 @@ export class TaskService {
   async toggleTaskCompletion(
     taskId: number,
     userId: string,
+    accessToken: string,
   ): Promise<Task | null> {
     // Primero obtenemos la tarea
-    const task = await this.getTaskById(taskId, userId);
+    const task = await this.getTaskById(taskId, userId, accessToken);
     if (!task) return null;
 
     // Alternamos el estado
-    return this.updateTask(taskId, userId, {
-      completed: !task.completed,
-    });
+    return this.updateTask(
+      taskId,
+      userId,
+      {
+        completed: !task.completed,
+      },
+      accessToken,
+    );
   }
 }
 

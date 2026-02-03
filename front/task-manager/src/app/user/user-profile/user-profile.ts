@@ -1,0 +1,37 @@
+import { AsyncPipe } from '@angular/common';
+import { Component, inject } from '@angular/core';
+import { AuthService } from '../../auth/auth.service';
+import { UserProfileSummary } from '../profile-summary/profile-summary';
+import { UserProfileForm } from '../profile-form/profile-form';
+import { UserProfileSecurity } from '../profile-security/profile-security';
+import type { ProfileFormValue } from '../profile-form/profile-form';
+import { UserService } from '../service/user-service';
+
+@Component({
+  selector: 'app-user-profile',
+  imports: [AsyncPipe, UserProfileSummary, UserProfileForm, UserProfileSecurity],
+  templateUrl: './user-profile.html',
+  styleUrl: './user-profile.css',
+})
+export class UserProfile {
+  private authService = inject(AuthService);
+  private userService = inject(UserService);
+
+  user$ = this.authService.currentUser$;
+
+  handleSave(payload: ProfileFormValue): void {
+    this.userService.updateProfile({ name: payload.name }).subscribe({
+      next: (updatedUser) => {
+        console.log('Profile updated:', updatedUser);
+      },
+      error: (error) => {
+        console.error('Failed to update profile:', error);
+      },
+    });
+  }
+
+  handleCancel(): void {
+    // TODO: Hook to reset any parent-level edit state if needed.
+    console.log('Profile edit canceled');
+  }
+}

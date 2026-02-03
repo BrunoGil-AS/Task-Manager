@@ -1,4 +1,4 @@
-import type User from "../model/User.js";
+import type { CreateUserDTO as User } from "../model/User.js";
 
 export const users: User[] = [
   {
