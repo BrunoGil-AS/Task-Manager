@@ -11,8 +11,4 @@ export class UserProfileSummary {
   private authService = inject(AuthService);
 
   user = input.required<AuthUser>();
-
-  signOut(): void {
-    this.authService.signOut().subscribe();
-  }
 }

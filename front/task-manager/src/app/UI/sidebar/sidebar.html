@@ -1,27 +1,48 @@
-<aside class="sidebar">
+<button class="hamburger" type="button" aria-label="Abrir menú" (click)="toggleSidebar()">
+  <span class="line"></span>
+  <span class="line"></span>
+  <span class="line"></span>
+</button>
+
+<aside class="sidebar" [class.open]="isOpen()">
   <!-- Sidebar Header -->
   <div class="sidebar-header">
     <h3>Filtros</h3>
+    <button class="sidebar-close" type="button" aria-label="Cerrar menú" (click)="closeSidebar()">
+      &times;
+    </button>
   </div>
 
   @if (mode() === 'container') {
     <!-- Filter Section -->
     <div class="filter-section">
       <div class="filter-group">
-        <button class="filter-button filter-button--active" (click)="filterByStatus('all')">
+        <button
+          class="filter-button"
+          [class.filter-button--active]="selectedStatus() === 'all'"
+          (click)="filterByStatus('all')"
+        >
           <span class="filter-icon">●</span>
           Todas
-          <span class="filter-count">0</span>
+          <span class="filter-count">{{ totalCount() }}</span>
         </button>
-        <button class="filter-button" (click)="filterByStatus('pending')">
+        <button
+          class="filter-button"
+          [class.filter-button--active]="selectedStatus() === 'pending'"
+          (click)="filterByStatus('pending')"
+        >
           <span class="filter-icon pending">●</span>
           En progreso
-          <span class="filter-count">0</span>
+          <span class="filter-count">{{ pendingCount() }}</span>
         </button>
-        <button class="filter-button" (click)="filterByStatus('completed')">
+        <button
+          class="filter-button"
+          [class.filter-button--active]="selectedStatus() === 'completed'"
+          (click)="filterByStatus('completed')"
+        >
           <span class="filter-icon completed">●</span>
           Completadas
-          <span class="filter-count">0</span>
+          <span class="filter-count">{{ completedCount() }}</span>
         </button>
       </div>
     </div>
@@ -30,10 +51,15 @@
     <div class="task-list-sidebar">
       <h4 class="task-list-title">Todas las tareas</h4>
       <div class="task-list-items">
-        <!-- Task items rendered here -->
-        <button class="task-item" (click)="navigateToTask(1)">
-          <span class="task-item-title">Tarea ejemplo</span>
-        </button>
+        @if (tasks().length === 0) {
+          <p class="task-list-empty">No hay tareas para mostrar</p>
+        } @else {
+          @for (task of tasks(); track task.id) {
+            <button class="task-item" (click)="navigateToTask(task.id)">
+              <span class="task-item-title">{{ task.title }}</span>
+            </button>
+          }
+        }
       </div>
     </div>
   }

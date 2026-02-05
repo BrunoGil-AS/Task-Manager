@@ -66,17 +66,6 @@
           </div>
         </div>
 
-        <!-- Task ID -->
-        <div class="details-section">
-          <h3 class="section-title">Informacion</h3>
-          <div class="info-grid">
-            <div class="info-item">
-              <span class="info-label">ID de tarea:</span>
-              <span class="info-value">{{ task().id }}</span>
-            </div>
-          </div>
-        </div>
-
         <!-- Actions -->
         <div class="details-actions">
           <button class="btn btn-secondary" (click)="toggleComplete()">
@@ -88,7 +77,7 @@
     } @else {
       <app-task-form
         [task]="task()"
-        [showForm]="showForm()"
+        [(showForm)]="showForm"
         [loading]="loading()"
         (onSave)="updateTask($event)"
       ></app-task-form>

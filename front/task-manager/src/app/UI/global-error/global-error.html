@@ -1,0 +1,21 @@
+<section class="error-stack" aria-live="assertive">
+  @if (errors().length) {
+    @for (error of errors(); track error.id) {
+      <article class="error-toast">
+        <div class="error-content">
+          <div class="error-title">{{ error.message }}</div>
+          @if (error.detail) {
+            <div class="error-detail">{{ error.detail }}</div>
+          }
+          <div class="error-meta">
+            <span class="error-time">{{ error.time }}</span>
+            @if (error.status) {
+              <span class="error-status">HTTP {{ error.status }}</span>
+            }
+          </div>
+        </div>
+        <button class="error-dismiss" type="button" (click)="dismiss(error.id)">Cerrar</button>
+      </article>
+    }
+  }
+</section>

@@ -50,6 +50,30 @@
   gap: var(--spacing-lg);
   width: 100%;
 }
+
+.profile-footer {
+  margin-top: auto;
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-logout {
+  background-color: var(--color-white);
+  color: var(--color-danger, #d92d20);
+  border: 1px solid var(--color-danger, #d92d20);
+}
+
+.btn-logout:hover {
+  background-color: rgba(217, 45, 32, 0.08);
+}
+
+.btn-logout__icon {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
 .profile-empty {
   padding: var(--spacing-2xl);
   background-color: var(--color-white);
@@ -120,6 +144,14 @@
 
   .profile-grid {
     grid-template-columns: 1fr;
+  }
+
+  .profile-footer {
+    justify-content: stretch;
+  }
+
+  .btn-logout {
+    width: 100%;
   }
 }
 

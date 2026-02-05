@@ -5,10 +5,6 @@
         <h2>Mi perfil</h2>
         <p>Administra tu información personal y tu sesión</p>
       </div>
-      <div class="profile-header__actions">
-        <button class="btn btn-secondary" type="button">Editar perfil</button>
-        <button class="btn btn-primary" type="button">Guardar cambios</button>
-      </div>
     </header>
 
     @if (user$ | async; as user) {
@@ -20,6 +16,26 @@
           (onCancel)="handleCancel()"
         ></app-user-profile-form>
         <app-user-profile-security></app-user-profile-security>
+      </div>
+      <div class="profile-footer">
+        <button class="btn btn-logout" type="button" (click)="logout()">
+          <svg class="btn-logout__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path
+              d="M10 12H20M20 12L17 9M20 12L17 15"
+              stroke="#1C274C"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M4 12C4 7.58172 7.58172 4 12 4M12 20C9.47362 20 7.22075 18.8289 5.75463 17"
+              stroke="#1C274C"
+              stroke-width="1.5"
+              stroke-linecap="round"
+            />
+          </svg>
+          Cerrar sesión
+        </button>
       </div>
     } @else {
       <div class="profile-empty">

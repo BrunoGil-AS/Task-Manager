@@ -1,5 +1,5 @@
 import { TaskService } from './../service/task-service';
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { Sidebar } from '../../UI/sidebar/sidebar';
 import { TaskCard } from '../task-card/task-card';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -17,6 +17,19 @@ export class TasksContainer {
 
   tasks = this.taskService.tasks;
   loading = this.taskService.loading;
+  filterStatus = signal<'all' | 'pending' | 'completed'>('all');
+
+  filteredTasks = computed(() => {
+    const tasks = this.tasks();
+    switch (this.filterStatus()) {
+      case 'completed':
+        return tasks.filter((task) => task.completed);
+      case 'pending':
+        return tasks.filter((task) => !task.completed);
+      default:
+        return tasks;
+    }
+  });
 
   skeletonItems = Array.from({ length: 6 });
 
@@ -52,6 +65,22 @@ export class TasksContainer {
       this.resetCreateForm();
       this.showCreateForm.set(false);
       this.taskService.refreshTasks(true);
+    });
+  }
+
+  setFilter(status: 'all' | 'pending' | 'completed') {
+    this.filterStatus.set(status);
+  }
+
+  deletingTask(id: number) {
+    const previousTasks = this.taskService.getTasksSnapshot();
+    this.taskService.removeTaskFromStore(id);
+
+    this.taskService.deleteTask(id).subscribe({
+      error: (error) => {
+        console.error('Error deleting task:', error);
+        this.taskService.restoreTasks(previousTasks);
+      },
     });
   }
 

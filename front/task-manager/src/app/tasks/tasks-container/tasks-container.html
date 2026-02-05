@@ -1,13 +1,19 @@
 <div class="tasks-container">
   <!-- Sidebar -->
-  <app-sidebar class="tasks-sidebar" [mode]="'container'"></app-sidebar>
+  <app-sidebar
+    class="tasks-sidebar"
+    [mode]="'container'"
+    (statusChange)="setFilter($event)"
+  ></app-sidebar>
 
   <!-- Task List Content -->
   <div class="tasks-content">
     <div class="tasks-header">
       <div class="tasks-header-info">
         <h2>Tareas</h2>
-        <p class="tasks-count">Total: <span id="totalCount">{{ tasks().length }}</span> tareas</p>
+        <p class="tasks-count">
+          Total: <span id="totalCount">{{ filteredTasks().length }}</span> tareas
+        </p>
       </div>
       <button class="btn btn-primary" type="button" (click)="toggleCreateForm()">
         {{ showCreateForm() ? 'Cerrar' : 'Nueva tarea' }}
@@ -73,22 +79,22 @@
     }
 
     <div class="tasks-list">
-      @if (loading() && tasks().length === 0) {
+      @if (loading() && filteredTasks().length === 0) {
         <div class="task-cards-grid">
           @for (item of skeletonItems; track $index) {
-            <app-task-card [loading]="true"></app-task-card>
+            <app-task-card [loading]="true" (delete_)="deletingTask($event)"></app-task-card>
           }
         </div>
       } @else {
         <div class="task-cards-grid">
           <!-- TaskCard components will be rendered here -->
-          @for (task of tasks(); track task.id) {
-            <app-task-card [task]="task"></app-task-card>
+          @for (task of filteredTasks(); track task.id) {
+            <app-task-card [task]="task" (delete_)="deletingTask($event)"></app-task-card>
           }
         </div>
       }
 
-      @if (!loading() && tasks().length === 0) {
+      @if (!loading() && filteredTasks().length === 0) {
         <!-- Empty state -->
         <div class="empty-state">
           <p>No hay tareas para mostrar</p>

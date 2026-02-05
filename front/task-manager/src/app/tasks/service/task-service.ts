@@ -129,6 +129,33 @@ export class TaskService {
   }
 
   /**
+   * Returns a snapshot of the current task list.
+   */
+  getTasksSnapshot() {
+    return this.tasksSubject.value;
+  }
+
+  /**
+   * Replaces the in-memory task list.
+   *
+   * Useful for optimistic updates with rollback.
+   */
+  restoreTasks(tasks: Task[]) {
+    this.tasksSubject.next(tasks);
+  }
+
+  /**
+   * Removes a task from the in-memory list.
+   */
+  removeTaskFromStore(id: number) {
+    const current = this.tasksSubject.value;
+    if (!current.length) {
+      return;
+    }
+    this.tasksSubject.next(current.filter((task) => task.id !== id));
+  }
+
+  /**
    * Maps a raw task object from the API to a `Task` model.
    *
    * This function ensures that the data received from the API conforms to the `Task` model used throughout the application.

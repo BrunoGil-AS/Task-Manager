@@ -34,4 +34,8 @@ export class UserProfile {
     // TODO: Hook to reset any parent-level edit state if needed.
     console.log('Profile edit canceled');
   }
+
+  logout(): void {
+    this.authService.signOut().subscribe();
+  }
 }

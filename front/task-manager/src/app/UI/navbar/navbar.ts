@@ -18,7 +18,4 @@ export class Navbar {
   navigate(path: string) {
     this.router.navigate([path]);
   }
-  logout() {
-    this.authService.signOut().subscribe();
-  }
 }

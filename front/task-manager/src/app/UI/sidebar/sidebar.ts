@@ -1,6 +1,7 @@
-import { Component, inject, input, signal } from '@angular/core';
+import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TaskService } from '../../tasks/service/task-service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-sidebar',
@@ -12,20 +13,19 @@ import { TaskService } from '../../tasks/service/task-service';
 export class Sidebar {
   isOpen = signal(false);
   taskService = inject(TaskService);
-  tasks = this.taskService.tasks();
+  tasks = this.taskService.tasks;
   mode = input.required<string>();
+  statusChange = output<'all' | 'pending' | 'completed'>();
+  selectedStatus = signal<'all' | 'pending' | 'completed'>('all');
+  private router = inject(Router);
 
-  filterByStatus(status: string) {
-    switch (status) {
-      case 'all':
-        return this.tasks;
-      case 'completed':
-        return this.tasks.filter((task) => task.completed);
-      case 'pending':
-        return this.tasks.filter((task) => !task.completed);
-      default:
-        return this.tasks;
-    }
+  totalCount = computed(() => this.tasks().length);
+  pendingCount = computed(() => this.tasks().filter((task) => !task.completed).length);
+  completedCount = computed(() => this.tasks().filter((task) => task.completed).length);
+
+  filterByStatus(status: 'all' | 'pending' | 'completed') {
+    this.selectedStatus.set(status);
+    this.statusChange.emit(status);
   }
   toggleSidebar() {
     this.isOpen.update((value) => !value);
@@ -35,6 +35,6 @@ export class Sidebar {
     this.isOpen.set(false);
   }
   navigateToTask(id: number) {
-    window.location.href = '/tasks/details/' + id;
+    this.router.navigate(['/tasks/details', id]);
   }
 }
