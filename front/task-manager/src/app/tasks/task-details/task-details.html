@@ -7,10 +7,34 @@
     <!-- Back Button -->
     <div class="task-details-header">
       <button class="btn-back" (click)="goBack()">
-        <span>← Volver</span>
+        <span>&larr; Volver</span>
       </button>
     </div>
-    @if (!showForm()) {
+    @if (loading()) {
+      <article class="task-details-card task-details-card--skeleton">
+        <div class="details-header">
+          <div class="skeleton-line skeleton-line--title"></div>
+          <div class="skeleton-pill"></div>
+          <div class="details-meta">
+            <div class="skeleton-line skeleton-line--sm"></div>
+            <div class="skeleton-line skeleton-line--sm"></div>
+          </div>
+        </div>
+        <div class="details-section">
+          <div class="skeleton-line"></div>
+          <div class="skeleton-line skeleton-line--lg"></div>
+          <div class="skeleton-line skeleton-line--lg"></div>
+        </div>
+        <div class="details-section">
+          <div class="skeleton-line skeleton-line--sm"></div>
+          <div class="skeleton-line"></div>
+        </div>
+        <div class="details-actions">
+          <div class="skeleton-button"></div>
+          <div class="skeleton-button skeleton-button--primary"></div>
+        </div>
+      </article>
+    } @else if (!showForm()) {
       <!-- Task Details Card -->
       <article class="task-details-card" [class.task-details-card--completed]="isCompleted()">
         <!-- Header with Status -->
@@ -18,7 +42,7 @@
           <div class="details-title-section">
             <h2 class="details-title">{{ taskTitle() }}</h2>
             <div class="status-badge" [class.status-badge--completed]="isCompleted()">
-              <span class="status-icon">{{ isCompleted() ? '✓' : '⏳' }}</span>
+              <span class="status-icon">{{ isCompleted() ? 'OK' : '...' }}</span>
               <span class="status-text">{{ isCompleted() ? 'Completada' : 'En progreso' }}</span>
             </div>
           </div>
@@ -36,7 +60,7 @@
 
         <!-- Description Section -->
         <div class="details-section">
-          <h3 class="section-title">Descripción</h3>
+          <h3 class="section-title">Descripcion</h3>
           <div class="section-content">
             <p class="description-text">{{ taskDescription() }}</p>
           </div>
@@ -44,7 +68,7 @@
 
         <!-- Task ID -->
         <div class="details-section">
-          <h3 class="section-title">Información</h3>
+          <h3 class="section-title">Informacion</h3>
           <div class="info-grid">
             <div class="info-item">
               <span class="info-label">ID de tarea:</span>
@@ -65,6 +89,7 @@
       <app-task-form
         [task]="task()"
         [showForm]="showForm()"
+        [loading]="loading()"
         (onSave)="updateTask($event)"
       ></app-task-form>
     }

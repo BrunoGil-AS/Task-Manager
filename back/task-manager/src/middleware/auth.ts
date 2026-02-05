@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
-import { createRemoteJWKSet, jwtVerify } from "jose";
+import { supabase } from "../config/supabaseClient.js";
 
-// Extender Request de Express
+// Extender Request de Express (SIN CAMBIOS)
 declare global {
   namespace Express {
     interface Request {
@@ -13,9 +13,6 @@ declare global {
     }
   }
 }
-
-const JWKS_URL = `${process.env.SUPABASE_URL}/auth/v1/.well-known/jwks.json`;
-const JWKS = createRemoteJWKSet(new URL(JWKS_URL));
 
 export async function authenticateUser(
   req: Request,
@@ -32,15 +29,21 @@ export async function authenticateUser(
 
     const token = authHeader.substring(7);
 
-    // Verificar el JWT usando las claves públicas de Supabase
-    const { payload } = await jwtVerify(token, JWKS, {
-      issuer: `${process.env.SUPABASE_URL}/auth/v1`, // Revisar si esto es aun aplicable
-    });
+    // ✅ Verificar el JWT usando el cliente de Supabase
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser(token);
 
-    // Agregar usuario al request
+    if (error || !user) {
+      res.status(401).json({ error: "Invalid or expired token" });
+      return;
+    }
+
+    // Agregar usuario al request (MISMA ESTRUCTURA)
     req.user = {
-      sub: payload.sub as string,
-      email: payload.email as string | undefined,
+      sub: user.id,
+      email: user.email,
       accessToken: token,
     };
 

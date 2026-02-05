@@ -1,90 +1,109 @@
 <div class="task-form-container">
   <div class="task-form-content">
-    <article class="task-form-card">
-      <h2 class="form-title">Editar tarea</h2>
-
-      <form class="task-form" [formGroup]="form" (submit)="saveChanges()">
-        <div class="form-group">
-          <label for="taskId" class="form-label">ID de la tarea</label>
-          <input
-            type="text"
-            id="taskId"
-            class="form-input form-input--disabled"
-            [value]="task().id"
-            disabled
-            aria-readonly="true"
-          />
-          <p class="form-hint">El ID de la tarea no puede ser modificado</p>
+    <article class="task-form-card" [class.task-form-card--skeleton]="loading()">
+      @if (loading()) {
+        <div class="skeleton-line skeleton-line--title"></div>
+        <div class="skeleton-line"></div>
+        <div class="skeleton-line"></div>
+        <div class="skeleton-line skeleton-line--lg"></div>
+        <div class="skeleton-line skeleton-line--lg"></div>
+        <div class="skeleton-line"></div>
+        <div class="skeleton-dates">
+          <div class="skeleton-line"></div>
+          <div class="skeleton-line"></div>
         </div>
-
-        <div class="form-group">
-          <label for="title" class="form-label required">Título</label>
-          <input
-            type="text"
-            id="title"
-            class="form-control"
-            formControlName="title"
-            placeholder="Ingresa el título de la tarea"
-          />
+        <div class="skeleton-actions">
+          <div class="skeleton-button"></div>
+          <div class="skeleton-button skeleton-button--primary"></div>
         </div>
+      } @else {
+        <h2 class="form-title">Editar tarea</h2>
 
-        <div class="form-group">
-          <label for="description" class="form-label">Descripción</label>
-          <textarea
-            id="description"
-            class="form-textarea"
-            formControlName="description"
-            placeholder="Ingresa una descripción detallada de la tarea"
-            rows="6"
-          ></textarea>
-        </div>
-
-        <div class="form-group">
-          <label for="completed" class="form-label">Estado</label>
-          <div class="form-checkbox-group">
-            <input
-              type="checkbox"
-              id="completed"
-              class="form-checkbox"
-              formControlName="completed"
-            />
-            <label for="completed" class="form-checkbox-label"> Marcar como completada </label>
-          </div>
-        </div>
-
-        <div class="form-dates">
+        <form class="task-form" [formGroup]="form" (submit)="saveChanges()">
           <div class="form-group">
-            <label for="createdAt" class="form-label">Fecha de creación</label>
+            <label for="taskId" class="form-label">ID de la tarea</label>
             <input
               type="text"
-              id="createdAt"
+              id="taskId"
               class="form-input form-input--disabled"
-              [value]="task().createdAt | date: 'medium'"
+              [value]="task().id"
               disabled
               aria-readonly="true"
             />
+            <p class="form-hint">El ID de la tarea no puede ser modificado</p>
           </div>
+
           <div class="form-group">
-            <label for="updatedAt" class="form-label">Última actualización</label>
+            <label for="title" class="form-label required">Titulo</label>
             <input
               type="text"
-              id="updatedAt"
-              class="form-input form-input--disabled"
-              [value]="task().updatedAt | date: 'medium'"
-              disabled
-              aria-readonly="true"
+              id="title"
+              class="form-control"
+              formControlName="title"
+              placeholder="Ingresa el titulo de la tarea"
             />
           </div>
-        </div>
 
-        <div class="form-actions">
-          <button type="button" class="btn btn-secondary" (click)="cancel()">Cancelar</button>
+          <div class="form-group">
+            <label for="description" class="form-label">Descripcion</label>
+            <textarea
+              id="description"
+              class="form-textarea"
+              formControlName="description"
+              placeholder="Ingresa una descripcion detallada de la tarea"
+              rows="6"
+            ></textarea>
+          </div>
 
-          <button type="submit" class="btn btn-primary" [disabled]="form.invalid && form.touched">
-            Guardar cambios
-          </button>
-        </div>
-      </form>
+          <div class="form-group">
+            <label for="completed" class="form-label">Estado</label>
+            <div class="form-checkbox-group">
+              <input
+                type="checkbox"
+                id="completed"
+                class="form-checkbox"
+                formControlName="completed"
+              />
+              <label for="completed" class="form-checkbox-label">
+                Marcar como completada
+              </label>
+            </div>
+          </div>
+
+          <div class="form-dates">
+            <div class="form-group">
+              <label for="createdAt" class="form-label">Fecha de creacion</label>
+              <input
+                type="text"
+                id="createdAt"
+                class="form-input form-input--disabled"
+                [value]="task().createdAt | date: 'medium'"
+                disabled
+                aria-readonly="true"
+              />
+            </div>
+            <div class="form-group">
+              <label for="updatedAt" class="form-label">Ultima actualizacion</label>
+              <input
+                type="text"
+                id="updatedAt"
+                class="form-input form-input--disabled"
+                [value]="task().updatedAt | date: 'medium'"
+                disabled
+                aria-readonly="true"
+              />
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" (click)="cancel()">Cancelar</button>
+
+            <button type="submit" class="btn btn-primary" [disabled]="form.invalid && form.touched">
+              Guardar cambios
+            </button>
+          </div>
+        </form>
+      }
     </article>
   </div>
 </div>

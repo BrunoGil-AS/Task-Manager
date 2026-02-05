@@ -16,7 +16,6 @@ export const authGuard = () => {
     switchMap(() => authService.currentUser$.pipe(take(1))),
     map((user) => {
       if (user) {
-        console.log('usuario autenticado');
         return true; // Usuario autenticado
       }
       router.navigate(['/auth/login']);

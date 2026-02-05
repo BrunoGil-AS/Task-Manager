@@ -5,22 +5,95 @@
   <!-- Task List Content -->
   <div class="tasks-content">
     <div class="tasks-header">
-      <h2>Tareas</h2>
-      <p class="tasks-count">Total: <span id="totalCount">0</span> tareas</p>
+      <div class="tasks-header-info">
+        <h2>Tareas</h2>
+        <p class="tasks-count">Total: <span id="totalCount">{{ tasks().length }}</span> tareas</p>
+      </div>
+      <button class="btn btn-primary" type="button" (click)="toggleCreateForm()">
+        {{ showCreateForm() ? 'Cerrar' : 'Nueva tarea' }}
+      </button>
     </div>
 
-    <div class="tasks-list">
-      <div class="task-cards-grid">
-        <!-- TaskCard components will be rendered here -->
-        @for (task of tasks(); track task.id) {
-          <app-task-card [task]="task"></app-task-card>
-        }
-      </div>
+    @if (showCreateForm()) {
+      <article class="task-form-card task-form-card--inline">
+        <h3 class="form-title">Nueva tarea</h3>
 
-      <!-- Empty state -->
-      <div class="empty-state">
-        <p>No hay tareas para mostrar</p>
-      </div>
+        <form class="task-form" [formGroup]="createForm" (submit)="createTask()">
+          <div class="form-group">
+            <label for="newTaskTitle" class="form-label required">Título</label>
+            <input
+              type="text"
+              id="newTaskTitle"
+              class="form-input"
+              formControlName="title"
+              placeholder="Ingresa el título de la tarea"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="newTaskDescription" class="form-label">Descripción</label>
+            <textarea
+              id="newTaskDescription"
+              class="form-textarea"
+              formControlName="description"
+              placeholder="Ingresa una descripción detallada de la tarea"
+              rows="5"
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="newTaskCompleted" class="form-label">Estado</label>
+            <div class="form-checkbox-group">
+              <input
+                type="checkbox"
+                id="newTaskCompleted"
+                class="form-checkbox"
+                formControlName="completed"
+              />
+              <label for="newTaskCompleted" class="form-checkbox-label">
+                Marcar como completada
+              </label>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" (click)="toggleCreateForm()">
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              class="btn btn-primary"
+              [disabled]="createForm.invalid && createForm.touched"
+            >
+              Crear tarea
+            </button>
+          </div>
+        </form>
+      </article>
+    }
+
+    <div class="tasks-list">
+      @if (loading() && tasks().length === 0) {
+        <div class="task-cards-grid">
+          @for (item of skeletonItems; track $index) {
+            <app-task-card [loading]="true"></app-task-card>
+          }
+        </div>
+      } @else {
+        <div class="task-cards-grid">
+          <!-- TaskCard components will be rendered here -->
+          @for (task of tasks(); track task.id) {
+            <app-task-card [task]="task"></app-task-card>
+          }
+        </div>
+      }
+
+      @if (!loading() && tasks().length === 0) {
+        <!-- Empty state -->
+        <div class="empty-state">
+          <p>No hay tareas para mostrar</p>
+        </div>
+      }
     </div>
   </div>
 </div>

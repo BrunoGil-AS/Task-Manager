@@ -54,8 +54,6 @@ export class AuthService {
     // Listen to authentication changes
     this.supabaseService.client.auth.onAuthStateChange(
       (event: AuthChangeEvent, session: Session | null) => {
-        console.log('Auth state changed:', event);
-        console.log(session);
         if (session?.user) {
           this.setCurrentUser(session.user);
         } else {

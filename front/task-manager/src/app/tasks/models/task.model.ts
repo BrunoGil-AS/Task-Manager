@@ -1,4 +1,4 @@
-export default interface Task {
+export interface Task {
   id: number;
   title: string;
   description?: string;
@@ -6,3 +6,5 @@ export default interface Task {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export type CreateTaskPayload = Pick<Task, 'title' | 'description' | 'completed'>;

@@ -1,11 +1,12 @@
 import { Component, inject, signal } from '@angular/core';
 import { TaskService } from '../service/task-service';
 import { toSignal } from '@angular/core/rxjs-interop';
-import Task from '../models/task.model';
+import { Task } from '../models/task.model';
 import { DatePipe } from '@angular/common';
 import { Sidebar } from '../../UI/sidebar/sidebar';
 import { OutletContext } from '@angular/router';
 import { TaskForm } from '../task-form/task-form';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-task-details',
@@ -16,10 +17,13 @@ import { TaskForm } from '../task-form/task-form';
 export class TaskDetails {
   // get the id from /task/details/:id
   showForm = signal<boolean>(false);
+  loading = signal<boolean>(true);
   id = window.location.pathname.split('/')[3];
   // get the task from the service
   taskService = inject(TaskService);
-  task$ = this.taskService.getTask(Number(this.id));
+  task$ = this.taskService.getTask(Number(this.id)).pipe(
+    finalize(() => this.loading.set(false)),
+  );
   task = toSignal(this.task$, { initialValue: {} as Task });
   // get the task from the service
   goBack() {

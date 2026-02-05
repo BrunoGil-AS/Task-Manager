@@ -74,8 +74,11 @@ export class TaskController {
 
       const taskData: CreateTaskDTO = {
         title: title.trim(),
-        description: description!.trim(),
       };
+
+      if (typeof description === "string" && description.trim().length > 0) {
+        taskData.description = description.trim();
+      }
 
       const newTask = await taskService.createTask(
         userId,

@@ -1,4 +1,4 @@
-import Task from '../../models/task.model';
+import { Task } from '../../models/task.model';
 
 export default interface ApiResponse {
   data: Task[];

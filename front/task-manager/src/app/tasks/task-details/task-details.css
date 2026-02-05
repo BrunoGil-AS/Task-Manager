@@ -201,6 +201,80 @@
   border-top: 1px solid var(--color-border);
 }
 
+/* Skeleton */
+.task-details-card--skeleton {
+  pointer-events: none;
+}
+
+.skeleton-line,
+.skeleton-pill,
+.skeleton-button {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--color-bg-light);
+  border-radius: var(--radius-md);
+}
+
+.skeleton-line::after,
+.skeleton-pill::after,
+.skeleton-button::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.6),
+    transparent
+  );
+  animation: skeleton-shimmer 1.2s infinite;
+}
+
+.skeleton-line {
+  height: 14px;
+  width: 100%;
+  margin-bottom: var(--spacing-md);
+}
+
+.skeleton-line--sm {
+  height: 12px;
+  width: 140px;
+}
+
+.skeleton-line--title {
+  height: 26px;
+  width: 60%;
+  margin-bottom: var(--spacing-lg);
+}
+
+.skeleton-line--lg {
+  height: 18px;
+}
+
+.skeleton-pill {
+  height: 32px;
+  width: 120px;
+  border-radius: var(--radius-full);
+  margin-bottom: var(--spacing-lg);
+}
+
+.skeleton-button {
+  height: 44px;
+  width: 180px;
+  border-radius: var(--radius-md);
+}
+
+.skeleton-button--primary {
+  width: 200px;
+}
+
+@keyframes skeleton-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
 /* Buttons */
 .btn {
   padding: var(--spacing-md) var(--spacing-lg);
@@ -292,6 +366,11 @@
   }
 
   .btn {
+    width: 100%;
+  }
+
+  .skeleton-button,
+  .skeleton-button--primary {
     width: 100%;
   }
 }

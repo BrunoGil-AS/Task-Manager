@@ -1,7 +1,7 @@
 import { Component, input, model, output, inject, effect } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DatePipe } from '@angular/common';
-import Task from '../models/task.model';
+import { Task } from '../models/task.model';
 
 @Component({
   selector: 'app-task-form',
@@ -18,6 +18,7 @@ export class TaskForm {
   task = input.required<Task>();
   showForm = model.required<boolean>();
   onSave = output<Task>(); // Evento para emitir la tarea editada al padre
+  loading = input<boolean>(false);
 
   // Formulario Reactivo
   form: FormGroup;
