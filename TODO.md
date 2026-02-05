@@ -151,8 +151,8 @@
 - [x] Create home.ts home component
 - [x] Setup app.routes.ts routing
 - [x] Create app.config.ts Angular configuration
-- [ ] Test all routes work correctly
-- [ ] Verify routing redirects work
+- [x] Test all routes work correctly
+- [x] Verify routing redirects work
 
 ### Tasks Module Components
 
@@ -179,7 +179,6 @@
 - [x] Implement addTask() method
 - [x] Implement updateTask() method
 - [x] Implement deleteTask() method
-- [ ] Implement toggleTask() method
 - [ ] Add proper error handling
 - [ ] Add loading states
 - [x] Implement token injection in headers (auth interceptor)

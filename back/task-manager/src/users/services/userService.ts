@@ -1,9 +1,11 @@
 import { createAuthenticatedClient } from "../../config/supabaseClient.js";
 import type { User } from "../../types/supabase.js";
 import type { UpdateUserDTO, CreateUserDTO } from "../model/User.js";
+import { logger } from "../../config/logger.js";
 
 export class UserService {
   async getUserInfo(userId: string, accessToken: string): Promise<User> {
+    const log = logger.child({ userId, scope: "users.getProfile" });
     const supabase = createAuthenticatedClient(accessToken);
     const { data, error } = await supabase
       .from("users")
@@ -11,9 +13,13 @@ export class UserService {
       .eq("id", userId)
       .single();
 
-    if (error) throw new Error(`Error user does not exist. ${error.message}`);
+    if (error) {
+      log.error({ code: error.code, message: error.message }, "supabase.error");
+      throw new Error(`Error user does not exist. ${error.message}`);
+    }
     if (!data) throw new Error("User not found");
 
+    log.debug("supabase.ok");
     return data;
   }
 
@@ -21,6 +27,7 @@ export class UserService {
     userData: CreateUserDTO,
     accessToken: string,
   ): Promise<User> {
+    const log = logger.child({ userId: userData.id, scope: "users.create" });
     const supabase = createAuthenticatedClient(accessToken);
     const insertData: Record<string, unknown> = {
       id: userData.id,
@@ -34,9 +41,13 @@ export class UserService {
       .select("*")
       .single();
 
-    if (error) throw new Error(`Error creating user. ${error.message}`);
+    if (error) {
+      log.error({ code: error.code, message: error.message }, "supabase.error");
+      throw new Error(`Error creating user. ${error.message}`);
+    }
     if (!data) throw new Error("User not created.");
 
+    log.debug("supabase.ok");
     return data;
   }
 
@@ -45,6 +56,7 @@ export class UserService {
     updateData: UpdateUserDTO,
     accessToken: string,
   ): Promise<User> {
+    const log = logger.child({ userId, scope: "users.updateProfile" });
     const supabase = createAuthenticatedClient(accessToken);
     const updatePayload: Record<string, unknown> = {
       name: updateData.name,
@@ -57,13 +69,18 @@ export class UserService {
       .select("*")
       .single();
 
-    if (error) throw new Error(`Error updating user. ${error.message}`);
+    if (error) {
+      log.error({ code: error.code, message: error.message }, "supabase.error");
+      throw new Error(`Error updating user. ${error.message}`);
+    }
     if (!data) throw new Error("User not found.");
 
+    log.debug("supabase.ok");
     return data;
   }
 
   async disableUser(userId: string, accessToken: string): Promise<User> {
+    const log = logger.child({ userId, scope: "users.disable" });
     const supabase = createAuthenticatedClient(accessToken);
     const updatePayload: Record<string, unknown> = {
       enabled: false,
@@ -76,9 +93,13 @@ export class UserService {
       .select("*")
       .single();
 
-    if (error) throw new Error(`Error disabling user. ${error.message}`);
+    if (error) {
+      log.error({ code: error.code, message: error.message }, "supabase.error");
+      throw new Error(`Error disabling user. ${error.message}`);
+    }
     if (!data) throw new Error("User not found.");
 
+    log.debug("supabase.ok");
     return data;
   }
 

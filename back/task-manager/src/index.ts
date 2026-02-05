@@ -1,16 +1,16 @@
 // Your TypeScript code goes here
 
 import app from "./app.js";
+import { logger } from "./config/logger.js";
 
 const port = process.env.PORT ?? 3000;
 
 app.listen(port, () => {
-  console.log(`
-    -----------------------------------------
-      Server is running on port ${port}
-      Access it at http://localhost:${port}/api/tasks
-    ------------------------------------------
-    
-    Starting app logs...
-  `);
+  logger.info(
+    {
+      port,
+      url: `http://localhost:${port}/api/tasks`,
+    },
+    "server.started",
+  );
 });

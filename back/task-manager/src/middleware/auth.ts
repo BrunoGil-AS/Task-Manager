@@ -1,18 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import { supabase } from "../config/supabaseClient.js";
-
-// Extender Request de Express (SIN CAMBIOS)
-declare global {
-  namespace Express {
-    interface Request {
-      user?: {
-        sub: string; // user ID
-        email: string | undefined;
-        accessToken: string;
-      };
-    }
-  }
-}
+import { getRequestLogger } from "../config/logger.js";
 
 export async function authenticateUser(
   req: Request,
@@ -20,9 +8,11 @@ export async function authenticateUser(
   next: NextFunction,
 ): Promise<void> {
   try {
+    const log = getRequestLogger(req);
     const authHeader = req.headers.authorization;
 
     if (!authHeader?.startsWith("Bearer ")) {
+      log.warn({ hasAuthHeader: Boolean(authHeader) }, "auth.missing_token");
       res.status(401).json({ error: "No token provided" });
       return;
     }
@@ -36,6 +26,10 @@ export async function authenticateUser(
     } = await supabase.auth.getUser(token);
 
     if (error || !user) {
+      log.warn(
+        { authError: error?.message, hasUser: Boolean(user) },
+        "auth.invalid_token",
+      );
       res.status(401).json({ error: "Invalid or expired token" });
       return;
     }
@@ -47,9 +41,11 @@ export async function authenticateUser(
       accessToken: token,
     };
 
+    log.debug({ userId: user.id }, "auth.ok");
     next();
   } catch (error) {
-    console.error("Auth error:", error);
+    const log = getRequestLogger(req);
+    log.error({ err: error }, "auth.error");
     res.status(401).json({ error: "Invalid or expired token" });
   }
 }

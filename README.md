@@ -19,7 +19,7 @@ Task Manager is a comprehensive web application designed to help users efficient
 
 ## 🏗️ Project Architecture
 
-```
+```plain
 Task-Manager/
 ├── back/                    # Backend application (Express.js + Node.js)
 │   └── task-manager/
@@ -115,8 +115,9 @@ Task-Manager/
 
    Frontend runs on `http://localhost:4200`
 
-5. **Open application in browser**
-   ```
+5. **Open application in browser:**
+
+   ```plain
    http://localhost:4200
    ```
 
@@ -172,28 +173,22 @@ The frontend is built with Angular 21 and provides a modern, responsive user int
 
 ## 🔄 Application Flow
 
-```
-┌─────────────────────────────────────────────────────┐
-│                  User Browser                        │
-│              (Angular Frontend on 4200)              │
-└──────────────────────┬──────────────────────────────┘
-                       │ HTTP/REST API
-                       ↓
-┌──────────────────────────────────────────────────────┐
-│              Express.js Backend (3000)               │
-│  ┌────────────────────────────────────────────────┐ │
-│  │         API Routes & Controllers               │ │
-│  │  - Task CRUD Operations                        │ │
-│  │  - Input Validation                            │ │
-│  │  - Error Handling                              │ │
-│  └────────────────────┬──────────────────────────┘ │
-│                       │                             │
-│  ┌────────────────────↓──────────────────────────┐ │
-│  │      Supabase PostgreSQL Database             │ │
-│  │  - Task records                                │ │
-│  │  - User information                            │ │
-│  └────────────────────────────────────────────────┘ │
-└──────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    U["User Browser\n(Angular Frontend :4200)"]
+
+    subgraph B["Express.js Backend (:3000)"]
+        A["API Routes & Controllers
+- Task CRUD Operations
+- Input Validation
+- Error Handling"]
+        D["Supabase PostgreSQL Database
+- Task records
+- User information"]
+        A --> D
+    end
+
+    U -->|HTTP / REST API| A
 ```
 
 ## 🔌 API Endpoints
@@ -232,7 +227,7 @@ The application uses Supabase PostgreSQL. Main tables:
 
 ### Tasks Table
 
-```
+```plain
 - id (UUID, Primary Key)
 - title (String)
 - description (Text)
@@ -244,7 +239,7 @@ The application uses Supabase PostgreSQL. Main tables:
 
 ### Users Table
 
-```
+```plain
 - id (UUID, Primary Key)
 - email (String)
 - name (String)
@@ -424,6 +419,7 @@ export const API_BASE_URL = "http://localhost:3000/api";
    ```
 
 5. Push to the repository
+
    ```bash
    git push origin feature/your-feature-name
    ```
