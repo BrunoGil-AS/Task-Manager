@@ -16,18 +16,21 @@ describe('TaskService', () => {
     });
     service = TestBed.inject(TaskService);
     httpMock = TestBed.inject(HttpTestingController);
+    const initReq = httpMock.expectOne(apiRoutes.tasksApi + '/tasks');
+    initReq.flush({ data: [], pagination: { page: 1, limit: 10, total: 0 } });
   });
 
   afterEach(() => {
     httpMock.verify();
+    TestBed.resetTestingModule();
   });
 
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should have initial loading state as true', () => {
-    expect(service.loading()).toBe(true);
+  it('should have loading state false after initial load', () => {
+    expect(service.loading()).toBe(false);
   });
 
   it('should load tasks and update tasks signal', () => {
