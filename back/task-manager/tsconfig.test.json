@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    // Enable Jest and Node typings for tests.
+    "types": ["node", "jest"],
+    // Do not emit compiled output when running tests.
+    "noEmit": true
+  },
+  // Include source and test files for type-checking.
+  "include": ["src/**/*.ts", "src/**/*.test.ts"]
+}

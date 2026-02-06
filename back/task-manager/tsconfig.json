@@ -41,5 +41,9 @@
     "moduleDetection": "force",
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
-  }
+  },
+  // Only compile application source.
+  "include": ["src/**/*.ts"],
+  // Exclude build output, dependencies, and test config to avoid extra artifacts.
+  "exclude": ["dist", "node_modules", "jest.config.ts"]
 }

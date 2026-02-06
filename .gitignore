@@ -9,6 +9,9 @@ yarn-error.log
 .idea/
 *.log
 *.tsbuildinfo
+jest.config.js
+jest.config.d.ts
+jest.config.*.map
 build/
 .cache/
 .next/
