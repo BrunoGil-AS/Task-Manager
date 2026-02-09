@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
 /* ====================================== */
 /* VARIABLES GLOBALES - Sistema de Diseño */
 /* ====================================== */
@@ -7,6 +9,12 @@
 }
 
 :root {
+  /* ========== TIPOGRAFÍA ========== */
+  --font-sans: 'Manrope', 'Space Grotesk', system-ui, -apple-system, 'Segoe UI',
+    sans-serif;
+  --font-display: 'Space Grotesk', 'Manrope', system-ui, -apple-system, 'Segoe UI',
+    sans-serif;
+
   /* ========== COLORES PRIMARIOS ========== */
   --color-primary: #4f46e5;
   --color-primary-light: #6366f1;
@@ -41,6 +49,9 @@
   --color-white: #ffffff;
   --color-border: #e6e9ee;
   --color-bg-light: #f8fafc;
+  --color-surface: #ffffff;
+  --color-surface-elevated: #f7f8fb;
+  --color-bg: #eef1f7;
 
   /* ========== COLORES DE ESTADO ========== */
   --color-success: #10b981;
@@ -96,6 +107,11 @@
   --min-touch-height-sm: 36px;
   --min-touch-height-xs: 32px;
 
+  /* ========== LAYOUT ========== */
+  --app-max-width: 1200px;
+  --page-padding: clamp(1rem, 2.5vw, 2rem);
+  --page-gap: clamp(1rem, 2vw, 1.75rem);
+
   /* ========== BREAKPOINTS (para referencia) ========== */
   /* Móvil: < 480px */
   /* Small Mobile: 480px - 768px */
@@ -108,24 +124,34 @@ html,
 body {
   margin: 0;
   padding: 0;
-  font-family:
-    'Inter',
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    Helvetica,
-    Arial,
-    sans-serif,
-    'Apple Color Emoji',
-    'Segoe UI Emoji',
-    'Segoe UI Symbol';
+  font-family: var(--font-sans);
   font-size: 16px;
   color: var(--color-dark);
-  background: var(--color-white);
+  background: radial-gradient(
+      120% 120% at 10% 0%,
+      rgba(99, 102, 241, 0.12) 0%,
+      transparent 45%
+    ),
+    radial-gradient(
+      120% 120% at 90% 0%,
+      rgba(6, 182, 212, 0.12) 0%,
+      transparent 45%
+    ),
+    var(--color-bg);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  min-height: 100vh;
+}
+
+app-root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
 }
 
 /* ====== TIPOGRAFÍA GLOBAL ====== */
@@ -138,6 +164,7 @@ h6 {
   margin: 0;
   font-weight: var(--font-weight-bold);
   line-height: 1.2;
+  font-family: var(--font-display);
 }
 
 h1 {
@@ -181,6 +208,15 @@ button {
   padding: var(--spacing-sm) var(--spacing-md);
 }
 
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid rgba(79, 70, 229, 0.5);
+  outline-offset: 2px;
+}
+
 /* ====== FORMULARIOS ====== */
 input,
 textarea,
@@ -212,6 +248,17 @@ ol {
 
 li {
   margin: 0;
+}
+
+img,
+svg {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+main {
+  width: 100%;
 }
 
 /* ====== MEDIA QUERIES HELPER ====== */

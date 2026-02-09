@@ -4,6 +4,13 @@
   <span class="line"></span>
 </button>
 
+<div
+  class="sidebar-overlay"
+  [class.open]="isOpen()"
+  (click)="closeSidebar()"
+  aria-hidden="true"
+></div>
+
 <aside class="sidebar" [class.open]="isOpen()">
   <!-- Sidebar Header -->
   <div class="sidebar-header">

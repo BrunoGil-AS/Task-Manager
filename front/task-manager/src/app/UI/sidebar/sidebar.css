@@ -171,6 +171,21 @@
   cursor: pointer;
 }
 
+/* Overlay */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.4);
+  opacity: 0;
+  transition: opacity var(--transition-base);
+  z-index: 900;
+}
+
+.sidebar-overlay.open {
+  opacity: 1;
+}
+
 /* --- MEDIA QUERIES --- */
 
 /* Tablet & Mobile (< 1023px) */
@@ -199,6 +214,22 @@
     display: flex;
     justify-content: flex-end;
     padding: var(--spacing-md);
+  }
+}
+
+/* Mobile (<= 768px) */
+@media screen and (max-width: 768px) {
+  .sidebar-overlay {
+    display: block;
+    pointer-events: none;
+  }
+
+  .sidebar-overlay.open {
+    pointer-events: auto;
+  }
+
+  .sidebar {
+    width: min(85vw, 320px);
   }
 }
 
