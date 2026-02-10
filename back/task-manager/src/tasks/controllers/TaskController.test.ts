@@ -12,7 +12,13 @@ const taskService = {
   toggleTaskCompletion: jest.fn(),
   deleteTask: jest.fn(),
 } as {
-  getTasksByUser: jest.MockedFunction<(userId: string, token: string) => Promise<any[]>>;
+  getTasksByUser: jest.MockedFunction<
+    (
+      userId: string,
+      token: string,
+      options?: { page: number; pageSize: number },
+    ) => Promise<{ data: any[]; count: number; page: number; pageSize: number }>
+  >;
   getTaskById: jest.MockedFunction<
     (taskId: number, userId: string, token: string) => Promise<any | null>
   >;
@@ -80,16 +86,26 @@ describe("TaskController", () => {
     const req: any = { user: { sub: "u1", accessToken: "t1" } };
     const res = createRes();
 
-    taskService.getTasksByUser.mockResolvedValue([{ id: 1 }]);
+    taskService.getTasksByUser.mockResolvedValue({
+      data: [{ id: 1 }],
+      count: 1,
+      page: 1,
+      pageSize: 20,
+    });
 
     await controller.getAllTasks(req, res);
 
-    expect(taskService.getTasksByUser).toHaveBeenCalledWith("u1", "t1");
+    expect(taskService.getTasksByUser).toHaveBeenCalledWith("u1", "t1", {
+      page: 1,
+      pageSize: 20,
+    });
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({
       success: true,
       data: [{ id: 1 }],
       count: 1,
+      page: 1,
+      pageSize: 20,
     });
   });
 

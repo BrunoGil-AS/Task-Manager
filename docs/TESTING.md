@@ -8,6 +8,8 @@ This document summarizes the automated tests implemented for the Task Manager pr
 
 The project currently has automated tests for both the backend (Node/Express) and the frontend (Angular). The tests focus on **unit-level behavior** with **mocks**, ensuring predictable results without depending on real infrastructure (Supabase, HTTP APIs, etc.).
 
+**Strategy note:** This is a demo project and uses the free Supabase tier, so we **do not** run automated tests against a real Supabase project. We keep the automated suite **mock-based only** and rely on **manual smoke testing** for end-to-end verification.
+
 ---
 
 ## Backend Tests
@@ -143,14 +145,15 @@ npm test
 
 ### Backend
 
-- **Integration tests** for real HTTP routes (supertest).
-- **Authentication middleware** tests against signed/invalid JWTs.
-- **Supabase integration** tests (currently mocked only).
-- **Error handling paths** for database connection failures.
+**Current stance:** we are **not** adding automated integration tests against Supabase or real HTTP routes. All automated tests remain **unit-level with mocks**.
+
+**Remaining mock-based gaps (optional):**
+
+- Additional edge cases in middleware and controllers (rare error branches).
+- Error handling paths for simulated database/service failures.
 
 ### Frontend
 
-- **Guards** (`authGuard`, `guestGuard`) behavior in routing.
 - **User profile components** behavior (not just creation).
 - **Global error UI** rendering and dismissal behavior.
 - **Sidebar/task counts** behavior under empty + filtered states.
@@ -168,15 +171,17 @@ npm test
 
 ---
 
-## Recommendations
+## Recommendations (Mock-Only Strategy)
 
-- Add **API integration tests** using `supertest` for backend routes.
-- Add **guard tests** for auth/guest routing in Angular.
-- Add **E2E tests** for the full user journey.
-- Use CI to run both backend and frontend tests on every push.
+- Keep **unit tests with mocks** as the automated baseline.
+- Add **manual smoke tests** after major changes:
+  - Sign up, login, create/update/delete tasks, profile update.
+- Use CI to run **backend + frontend unit tests** on every push.
 
 ---
 
 ## Notes
 
 The frontend tests currently run under Angular’s test runner, but still use Vitest globals. This matches the existing project setup. If you choose to migrate to pure Jasmine/Karma or pure Vitest later, update the specs and test config accordingly.
+
+Manual testing has verified core flows (user creation and app features) are working on the current Supabase project.

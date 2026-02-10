@@ -17,6 +17,7 @@ export class TasksContainer {
 
   tasks = this.taskService.tasks;
   loading = this.taskService.loading;
+  pagination = this.taskService.pagination;
   filterStatus = signal<'all' | 'pending' | 'completed'>('all');
 
   filteredTasks = computed(() => {
@@ -70,6 +71,26 @@ export class TasksContainer {
 
   setFilter(status: 'all' | 'pending' | 'completed') {
     this.filterStatus.set(status);
+  }
+
+  nextPage() {
+    const { page, totalPages } = this.pagination();
+    if (page >= totalPages) {
+      return;
+    }
+    this.taskService.setPage(page + 1);
+  }
+
+  previousPage() {
+    const { page } = this.pagination();
+    if (page <= 1) {
+      return;
+    }
+    this.taskService.setPage(page - 1);
+  }
+
+  goToPage(page: number) {
+    this.taskService.setPage(page);
   }
 
   deletingTask(id: number) {

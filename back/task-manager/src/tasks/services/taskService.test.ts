@@ -46,8 +46,9 @@ describe("TaskService", () => {
   // Happy path: returns tasks for a user and orders by newest first.
   it("getTasksByUser returns tasks", async () => {
     const tasks = [{ id: 1, title: "A" }];
-    const order = mockAsync<{ data: typeof tasks; error: null }>();
-    order.mockResolvedValue({ data: tasks, error: null });
+    const range = mockAsync<{ data: typeof tasks; error: null; count: number }>();
+    range.mockResolvedValue({ data: tasks, error: null, count: 1 });
+    const order = mockSync<{ range: typeof range }>(() => ({ range }));
     const eq = mockSync<{ order: typeof order }>(() => ({ order }));
     const select = mockSync<{ eq: typeof eq }>(() => ({ eq }));
     const from = mockSync<{ select: typeof select }>(() => ({ select }));
@@ -57,24 +58,33 @@ describe("TaskService", () => {
     const service = new TaskService();
     const result = await service.getTasksByUser("user-1", "token-1");
 
-    expect(result).toEqual(tasks);
+    expect(result).toEqual({
+      data: tasks,
+      count: 1,
+      page: 1,
+      pageSize: 20,
+    });
     expect(createAuthenticatedClient).toHaveBeenCalledWith("token-1");
     expect(from).toHaveBeenCalledWith("tasks");
-    expect(select).toHaveBeenCalledWith("*");
+    expect(select).toHaveBeenCalledWith("*", { count: "exact" });
     expect(eq).toHaveBeenCalledWith("owner_id", "user-1");
     expect(order).toHaveBeenCalledWith("created_at", { ascending: false });
+    expect(range).toHaveBeenCalledWith(0, 19);
   });
 
   // Error path: surface Supabase error as a thrown exception.
   it("getTasksByUser throws on supabase error", async () => {
-    const order = mockAsync<{
+    const range = mockAsync<{
       data: null;
       error: { code: string; message: string };
+      count: null;
     }>();
-    order.mockResolvedValue({
+    range.mockResolvedValue({
       data: null,
       error: { code: "X", message: "boom" },
+      count: null,
     });
+    const order = mockSync<{ range: typeof range }>(() => ({ range }));
     const eq = mockSync<{ order: typeof order }>(() => ({ order }));
     const select = mockSync<{ eq: typeof eq }>(() => ({ eq }));
     const from = mockSync<{ select: typeof select }>(() => ({ select }));

@@ -7,21 +7,61 @@ export class TaskService {
   /**
    * Obtener todas las tareas de un usuario
    */
-  async getTasksByUser(userId: string, accessToken: string): Promise<Task[]> {
+  async getTasksByUser(
+    userId: string,
+    accessToken: string,
+    options: { page: number; pageSize: number } = { page: 1, pageSize: 20 },
+  ): Promise<{ data: Task[]; count: number; page: number; pageSize: number }> {
     const log = logger.child({ userId, scope: "tasks.getAll" });
+    // Start timer to flag slow queries.
+    const start = process.hrtime.bigint();
     const supabase = createAuthenticatedClient(accessToken);
-    const { data, error } = await supabase
+    // Pagination window for the current page.
+    const from = (options.page - 1) * options.pageSize;
+    const to = from + options.pageSize - 1;
+    const { data, error, count } = await supabase
       .from("tasks")
-      .select("*")
+      .select("*", {
+        count: "exact",
+      })
       .eq("owner_id", userId)
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .range(from, to);
+
+    const durationMs = Number(process.hrtime.bigint() - start) / 1_000_000;
+    const slowQueryMs = Number(process.env.SLOW_QUERY_MS ?? 200);
 
     if (error) {
-      log.error({ code: error.code, message: error.message }, "supabase.error");
+      log.error(
+        { code: error.code, message: error.message, durationMs },
+        "supabase.error",
+      );
       throw new Error(`Error fetching tasks: ${error.message}`);
     }
-    log.debug({ count: data?.length ?? 0 }, "supabase.ok");
-    return data || [];
+
+    if (durationMs >= slowQueryMs) {
+      log.warn(
+        {
+          durationMs,
+          slowQueryMs,
+          page: options.page,
+          pageSize: options.pageSize,
+        },
+        "supabase.slow_query",
+      );
+    }
+
+    log.debug(
+      { count: data?.length ?? 0, durationMs, page: options.page },
+      "supabase.ok",
+    );
+
+    return {
+      data: data || [],
+      count: count ?? 0,
+      page: options.page,
+      pageSize: options.pageSize,
+    };
   }
 
   /**
@@ -33,6 +73,7 @@ export class TaskService {
     accessToken: string,
   ): Promise<Task | null> {
     const log = logger.child({ userId, taskId, scope: "tasks.getById" });
+    const start = process.hrtime.bigint();
     const supabase = createAuthenticatedClient(accessToken);
     const { data, error } = await supabase
       .from("tasks")
@@ -41,16 +82,26 @@ export class TaskService {
       .eq("owner_id", userId)
       .single();
 
+    const durationMs = Number(process.hrtime.bigint() - start) / 1_000_000;
+    const slowQueryMs = Number(process.env.SLOW_QUERY_MS ?? 200);
+
     if (error) {
       if (error.code === "PGRST116") {
-        log.debug("supabase.not_found");
+        log.debug({ durationMs }, "supabase.not_found");
         return null; // No encontrado
       }
-      log.error({ code: error.code, message: error.message }, "supabase.error");
+      log.error(
+        { code: error.code, message: error.message, durationMs },
+        "supabase.error",
+      );
       throw new Error(`Error fetching task: ${error.message}`);
     }
 
-    log.debug("supabase.ok");
+    if (durationMs >= slowQueryMs) {
+      log.warn({ durationMs, slowQueryMs }, "supabase.slow_query");
+    }
+
+    log.debug({ durationMs }, "supabase.ok");
     return data;
   }
 
@@ -63,6 +114,7 @@ export class TaskService {
     accessToken: string,
   ): Promise<Task> {
     const log = logger.child({ userId, scope: "tasks.create" });
+    const start = process.hrtime.bigint();
     const supabase = createAuthenticatedClient(accessToken);
     const { data, error } = await supabase
       .from("tasks")
@@ -70,15 +122,25 @@ export class TaskService {
         title: taskData.title,
         description: taskData.description || null,
         owner_id: userId,
+        completed: taskData.completed ?? false,
       })
-      .select()
+      .select("*")
       .single();
 
+    const durationMs = Number(process.hrtime.bigint() - start) / 1_000_000;
+    const slowQueryMs = Number(process.env.SLOW_QUERY_MS ?? 200);
+
     if (error) {
-      log.error({ code: error.code, message: error.message }, "supabase.error");
+      log.error(
+        { code: error.code, message: error.message, durationMs },
+        "supabase.error",
+      );
       throw new Error(`Error creating task: ${error.message}`);
     }
-    log.debug({ taskId: data?.id }, "supabase.ok");
+    if (durationMs >= slowQueryMs) {
+      log.warn({ durationMs, slowQueryMs }, "supabase.slow_query");
+    }
+    log.debug({ taskId: data?.id, durationMs }, "supabase.ok");
     return data;
   }
 
@@ -92,25 +154,35 @@ export class TaskService {
     accessToken: string,
   ): Promise<Task | null> {
     const log = logger.child({ userId, taskId, scope: "tasks.update" });
+    const start = process.hrtime.bigint();
     const supabase = createAuthenticatedClient(accessToken);
     const { data, error } = await supabase
       .from("tasks")
       .update(updateData)
       .eq("id", taskId)
       .eq("owner_id", userId)
-      .select()
+      .select("*")
       .single();
+
+    const durationMs = Number(process.hrtime.bigint() - start) / 1_000_000;
+    const slowQueryMs = Number(process.env.SLOW_QUERY_MS ?? 200);
 
     if (error) {
       if (error.code === "PGRST116") {
-        log.debug("supabase.not_found");
+        log.debug({ durationMs }, "supabase.not_found");
         return null;
       }
-      log.error({ code: error.code, message: error.message }, "supabase.error");
+      log.error(
+        { code: error.code, message: error.message, durationMs },
+        "supabase.error",
+      );
       throw new Error(`Error updating task: ${error.message}`);
     }
 
-    log.debug("supabase.ok");
+    if (durationMs >= slowQueryMs) {
+      log.warn({ durationMs, slowQueryMs }, "supabase.slow_query");
+    }
+    log.debug({ durationMs }, "supabase.ok");
     return data;
   }
 
@@ -123,6 +195,7 @@ export class TaskService {
     accessToken: string,
   ): Promise<boolean> {
     const log = logger.child({ userId, taskId, scope: "tasks.delete" });
+    const start = process.hrtime.bigint();
     const supabase = createAuthenticatedClient(accessToken);
     const { error } = await supabase
       .from("tasks")
@@ -130,11 +203,20 @@ export class TaskService {
       .eq("id", taskId)
       .eq("owner_id", userId);
 
+    const durationMs = Number(process.hrtime.bigint() - start) / 1_000_000;
+    const slowQueryMs = Number(process.env.SLOW_QUERY_MS ?? 200);
+
     if (error) {
-      log.error({ code: error.code, message: error.message }, "supabase.error");
+      log.error(
+        { code: error.code, message: error.message, durationMs },
+        "supabase.error",
+      );
       throw new Error(`Error deleting task: ${error.message}`);
     }
-    log.debug("supabase.ok");
+    if (durationMs >= slowQueryMs) {
+      log.warn({ durationMs, slowQueryMs }, "supabase.slow_query");
+    }
+    log.debug({ durationMs }, "supabase.ok");
     return true;
   }
 

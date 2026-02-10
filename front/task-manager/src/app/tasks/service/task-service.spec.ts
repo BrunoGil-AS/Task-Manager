@@ -16,8 +16,13 @@ describe('TaskService', () => {
     });
     service = TestBed.inject(TaskService);
     httpMock = TestBed.inject(HttpTestingController);
-    const initReq = httpMock.expectOne(apiRoutes.tasksApi + '/tasks');
-    initReq.flush({ data: [], pagination: { page: 1, limit: 10, total: 0 } });
+    const initReq = httpMock.expectOne(
+      (req) =>
+        req.url === apiRoutes.tasksApi + '/tasks' &&
+        req.params.get('page') === '1' &&
+        req.params.get('pageSize') === '20',
+    );
+    initReq.flush({ success: true, data: [], count: 0, page: 1, pageSize: 20 });
   });
 
   afterEach(() => {
@@ -39,17 +44,25 @@ describe('TaskService', () => {
       { id: 2, title: 'Task 2', completed: true, createdAt: new Date(), updatedAt: new Date() },
     ];
     const apiResponse: ApiResponse = {
-      data: mockTasks.map(task => ({ ...task, created_at: task.createdAt, updated_at: task.updatedAt })),
-      pagination: {
-        page: 1,
-        limit: 10,
-        total: 2,
-      },
+      success: true,
+      data: mockTasks.map(task => ({
+        ...task,
+        created_at: task.createdAt,
+        updated_at: task.updatedAt,
+      })),
+      count: 2,
+      page: 1,
+      pageSize: 20,
     };
 
     service.refreshTasks();
 
-    const req = httpMock.expectOne(apiRoutes.tasksApi + '/tasks');
+    const req = httpMock.expectOne(
+      (req) =>
+        req.url === apiRoutes.tasksApi + '/tasks' &&
+        req.params.get('page') === '1' &&
+        req.params.get('pageSize') === '20',
+    );
     expect(req.request.method).toBe('GET');
     req.flush(apiResponse);
 

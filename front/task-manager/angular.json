@@ -25,9 +25,7 @@
                 "input": "public"
               }
             ],
-            "styles": [
-              "src/styles.css"
-            ]
+            "styles": ["src/styles.css"]
           },
           "configurations": {
             "production": {
@@ -55,6 +53,17 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "headers": {
+              "Content-Security-Policy": "default-src 'self'; base-uri 'self'; frame-ancestors 'none'; object-src 'none'; form-action 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data:; connect-src 'self' http://localhost:3000 https://dvyjtwsauondclauycvi.supabase.co; upgrade-insecure-requests",
+              "Referrer-Policy": "strict-origin-when-cross-origin",
+              "X-Content-Type-Options": "nosniff",
+              "X-Frame-Options": "DENY",
+              "Permissions-Policy": "geolocation=(), microphone=(), camera=()",
+              "Cross-Origin-Opener-Policy": "same-origin",
+              "Cross-Origin-Resource-Policy": "same-origin"
+            }
+          },
           "configurations": {
             "production": {
               "buildTarget": "task-manager:build:production"

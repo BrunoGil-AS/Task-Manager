@@ -8,6 +8,9 @@ import { errorHandler } from "./error/errorHandler.js";
 import helmet from "helmet";
 import dotenv from "dotenv";
 import { getRequestLogger } from "./config/logger.js";
+import compression from "compression";
+import { responseTimeMiddleware } from "./middleware/responseTime.js";
+import { cacheHeadersMiddleware } from "./middleware/cacheHeaders.js";
 
 dotenv.config();
 
@@ -15,6 +18,9 @@ const app = express();
 
 // Middleware to parse JSON bodies
 app.use(express.json());
+
+// Gzip/deflate compression for faster responses
+app.use(compression());
 
 // Logging middleware should run before routes and the 404 handler
 app.use(loggingMiddleware);
@@ -52,7 +58,8 @@ app.use((req, _res, next) => {
     log.info(
       {
         origin: req.headers.origin,
-        accessControlRequestMethod: req.headers["access-control-request-method"],
+        accessControlRequestMethod:
+          req.headers["access-control-request-method"],
         accessControlRequestHeaders:
           req.headers["access-control-request-headers"],
       },
@@ -65,6 +72,11 @@ app.use((req, _res, next) => {
 //cors middleware
 app.use(cors(corsOptions));
 app.options(/.*/, cors(corsOptions));
+
+// Cache headers for GETs and no-store for mutating requests
+app.use(cacheHeadersMiddleware);
+// Track and log response times
+app.use(responseTimeMiddleware);
 
 // API routes
 app.use("/api/tasks", tasksRouter);

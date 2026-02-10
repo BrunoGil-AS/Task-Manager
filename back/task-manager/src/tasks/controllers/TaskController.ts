@@ -2,6 +2,11 @@ import type { Request, Response } from "express";
 import taskService from "../services/taskService.js";
 import type { CreateTaskDTO, UpdateTaskDTO } from "../models/Task.js";
 import { getRequestLogger } from "../../config/logger.js";
+import type {
+  TaskListResponseDTO,
+  TaskResponseDTO,
+  MessageResponseDTO,
+} from "./TaskControllerDTOs.js";
 
 export class TaskController {
   async getAllTasks(req: Request, res: Response): Promise<void> {
@@ -16,9 +21,34 @@ export class TaskController {
         return;
       }
 
-      const tasks = await taskService.getTasksByUser(userId, accessToken);
-      log.debug({ userId, count: tasks.length }, "tasks.getAll.ok");
-      res.status(200).json({ success: true, data: tasks, count: tasks.length });
+      // Pagination inputs with safe defaults and hard limit.
+      const query = req.query ?? {};
+      const page = Number((query as Record<string, unknown>).page ?? 1);
+      const pageSize = Number(
+        (query as Record<string, unknown>).pageSize ?? 20,
+      );
+      const safePage = Number.isFinite(page) && page > 0 ? page : 1;
+      const safePageSize =
+        Number.isFinite(pageSize) && pageSize > 0
+          ? Math.min(pageSize, 100)
+          : 20;
+
+      const result = await taskService.getTasksByUser(userId, accessToken, {
+        page: safePage,
+        pageSize: safePageSize,
+      });
+      log.debug(
+        { userId, count: result.data.length, page: safePage },
+        "tasks.getAll.ok",
+      );
+      const response: TaskListResponseDTO = {
+        success: true,
+        data: result.data,
+        count: result.count,
+        page: result.page,
+        pageSize: result.pageSize,
+      };
+      res.status(200).json(response);
     } catch (error) {
       const log = getRequestLogger(req);
       log.error({ err: error }, "tasks.getAll.error");
@@ -57,7 +87,8 @@ export class TaskController {
       }
 
       log.debug({ userId, taskId }, "tasks.getById.ok");
-      res.status(200).json({ success: true, data: task });
+      const response: TaskResponseDTO = { success: true, data: task };
+      res.status(200).json(response);
     } catch (error) {
       const log = getRequestLogger(req);
       log.error({ err: error }, "tasks.getById.error");
@@ -80,7 +111,7 @@ export class TaskController {
         return;
       }
 
-      const { title, description } = req.body as CreateTaskDTO;
+      const { title, description, completed } = req.body as CreateTaskDTO;
 
       if (!title?.trim()) {
         log.warn({ userId }, "tasks.create.missing_title");
@@ -95,6 +126,9 @@ export class TaskController {
       if (typeof description === "string" && description.trim().length > 0) {
         taskData.description = description.trim();
       }
+      if (typeof completed === "boolean") {
+        taskData.completed = completed;
+      }
 
       const newTask = await taskService.createTask(
         userId,
@@ -102,11 +136,12 @@ export class TaskController {
         accessToken,
       );
       log.info({ userId, taskId: newTask.id }, "tasks.create.ok");
-      res.status(201).json({
+      const response: TaskResponseDTO = {
         success: true,
         data: newTask,
         message: "Task created successfully",
-      });
+      };
+      res.status(201).json(response);
     } catch (error) {
       const log = getRequestLogger(req);
       log.error({ err: error }, "tasks.create.error");
@@ -164,11 +199,12 @@ export class TaskController {
       }
 
       log.info({ userId, taskId }, "tasks.update.ok");
-      res.status(200).json({
+      const response: TaskResponseDTO = {
         success: true,
         data: updatedTask,
         message: "Task updated successfully",
-      });
+      };
+      res.status(200).json(response);
     } catch (error) {
       const log = getRequestLogger(req);
       log.error({ err: error }, "tasks.update.error");
@@ -211,11 +247,12 @@ export class TaskController {
       }
 
       log.info({ userId, taskId }, "tasks.toggle.ok");
-      res.status(200).json({
+      const response: TaskResponseDTO = {
         success: true,
         data: updatedTask,
         message: "Task status toggled",
-      });
+      };
+      res.status(200).json(response);
     } catch (error) {
       const log = getRequestLogger(req);
       log.error({ err: error }, "tasks.toggle.error");
@@ -248,10 +285,11 @@ export class TaskController {
 
       await taskService.deleteTask(taskId, userId, accessToken);
       log.info({ userId, taskId }, "tasks.delete.ok");
-      res.status(200).json({
+      const response: MessageResponseDTO = {
         success: true,
         message: "Task deleted successfully",
-      });
+      };
+      res.status(200).json(response);
     } catch (error) {
       const log = getRequestLogger(req);
       log.error({ err: error }, "tasks.delete.error");

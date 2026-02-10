@@ -41,6 +41,21 @@ export class TaskService {
   private hasLoaded = false;
 
   /**
+   * Tracks the latest pagination parameters.
+   */
+  private lastQuery = { page: 1, pageSize: 20 };
+
+  /**
+   * Internal store for pagination metadata.
+   */
+  private paginationSubject = new BehaviorSubject({
+    page: 1,
+    pageSize: 20,
+    count: 0,
+    totalPages: 1,
+  });
+
+  /**
    * A signal representing the list of tasks.
    *
    * @memberof TaskService
@@ -53,6 +68,13 @@ export class TaskService {
    * @memberof TaskService
    */
   loading = toSignal(this.loadingSubject.asObservable(), { initialValue: true });
+
+  /**
+   * A signal representing pagination metadata.
+   */
+  pagination = toSignal(this.paginationSubject.asObservable(), {
+    initialValue: { page: 1, pageSize: 20, count: 0, totalPages: 1 },
+  });
 
   constructor() {
     effect(() => {
@@ -74,6 +96,15 @@ export class TaskService {
   }
 
   /**
+   * Loads a specific page of tasks.
+   */
+  setPage(page: number) {
+    const safePage = Number.isFinite(page) && page > 0 ? page : 1;
+    const { pageSize } = this.paginationSubject.value;
+    this.loadTasks(true, safePage, pageSize);
+  }
+
+  /**
    * Loads tasks from the API into the in-memory store.
    *
    * Skips the request when tasks were already loaded unless `force` is true.
@@ -82,17 +113,40 @@ export class TaskService {
    * @param {boolean} [force=false] Forces a reload even if tasks have already been loaded.
    * @memberof TaskService
    */
-  private loadTasks(force = false) {
-    if (this.hasLoaded && !force) {
+  private loadTasks(force = false, page = this.lastQuery.page, pageSize = this.lastQuery.pageSize) {
+    // Skip loading if already loaded and not forced, and pagination hasn't changed.
+    if (
+      this.hasLoaded &&
+      !force &&
+      page === this.lastQuery.page &&
+      pageSize === this.lastQuery.pageSize
+    ) {
       return;
     }
 
     this.loadingSubject.next(true);
+    this.lastQuery = { page, pageSize }; // Update last query parameters.
 
     this.http
-      .get<ApiResponse>(apiRoutes.tasksApi + '/tasks')
+      .get<ApiResponse>(apiRoutes.tasksApi + '/tasks', {
+        params: {
+          page,
+          pageSize,
+        },
+      })
       .pipe(
-        map((res) => res.data.map((task) => this.mapTask(task))),
+        map((res) => {
+          const tasks = res.data.map((task) => this.mapTask(task));
+          // Update pagination metadata based on response, calculated from total count of items in the database and page size.
+          const totalPages = Math.max(1, Math.ceil(res.count / res.pageSize));
+          this.paginationSubject.next({
+            page: res.page,
+            pageSize: res.pageSize,
+            count: res.count,
+            totalPages,
+          });
+          return tasks;
+        }),
         finalize(() => this.loadingSubject.next(false)),
       )
       .subscribe({

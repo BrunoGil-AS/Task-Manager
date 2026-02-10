@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import userService from "../services/userService.js";
 import type { UpdateUserDTO } from "../model/User.js";
 import { getRequestLogger } from "../../config/logger.js";
+import type { UserResponseDTO } from "./UserControllerDTOs.js";
 
 export class UserController {
   async getProfile(req: Request, res: Response): Promise<void> {
@@ -18,7 +19,8 @@ export class UserController {
 
       const user = await userService.getUserInfo(userId, accessToken);
       log.debug({ userId }, "users.getProfile.ok");
-      res.status(200).json({ success: true, data: user });
+      const response: UserResponseDTO = { success: true, data: user };
+      res.status(200).json(response);
     } catch (error) {
       const log = getRequestLogger(req);
       log.error({ err: error }, "users.getProfile.error");
@@ -36,7 +38,10 @@ export class UserController {
       const accessToken = req.user?.accessToken;
 
       if (!userId || !accessToken) {
-        log.warn({ hasUser: Boolean(userId) }, "users.updateProfile.unauthorized");
+        log.warn(
+          { hasUser: Boolean(userId) },
+          "users.updateProfile.unauthorized",
+        );
         res.status(401).json({ error: "Access denied" });
         return;
       }
@@ -55,11 +60,12 @@ export class UserController {
       );
 
       log.info({ userId }, "users.updateProfile.ok");
-      res.status(200).json({
+      const response: UserResponseDTO = {
         success: true,
         data: updatedUser,
         message: "User updated successfully",
-      });
+      };
+      res.status(200).json(response);
     } catch (error) {
       const log = getRequestLogger(req);
       log.error({ err: error }, "users.updateProfile.error");
@@ -77,18 +83,22 @@ export class UserController {
       const accessToken = req.user?.accessToken;
 
       if (!userId || !accessToken) {
-        log.warn({ hasUser: Boolean(userId) }, "users.deleteAccount.unauthorized");
+        log.warn(
+          { hasUser: Boolean(userId) },
+          "users.deleteAccount.unauthorized",
+        );
         res.status(401).json({ error: "Access denied" });
         return;
       }
 
       const disabledUser = await userService.deleteUser(userId, accessToken);
       log.info({ userId }, "users.deleteAccount.ok");
-      res.status(200).json({
+      const response: UserResponseDTO = {
         success: true,
         data: disabledUser,
         message: "User disabled successfully",
-      });
+      };
+      res.status(200).json(response);
     } catch (error) {
       const log = getRequestLogger(req);
       log.error({ err: error }, "users.deleteAccount.error");

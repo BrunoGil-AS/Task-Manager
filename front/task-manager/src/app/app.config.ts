@@ -1,12 +1,13 @@
-import {
-  ApplicationConfig,
-  ErrorHandler,
-  provideBrowserGlobalErrorListeners,
-} from '@angular/core';
+import { ApplicationConfig, ErrorHandler, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
-import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
+import {
+  provideHttpClient,
+  withFetch,
+  withInterceptors,
+  withXsrfConfiguration,
+} from '@angular/common/http';
 import { authInterceptor } from './auth/auth.interceptor';
 import { httpErrorInterceptor } from './core/errors/http-error.interceptor';
 import { GlobalErrorHandler } from './core/errors/global-error.handler';
@@ -16,6 +17,14 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     { provide: ErrorHandler, useClass: GlobalErrorHandler },
     provideRouter(routes),
-    provideHttpClient(withFetch(), withInterceptors([authInterceptor, httpErrorInterceptor])),
+    provideHttpClient(
+      withFetch(),
+      withInterceptors([authInterceptor, httpErrorInterceptor]),
+      // CSRF/XSRF protection via standard Angular header/cookie names.
+      withXsrfConfiguration({
+        cookieName: 'XSRF-TOKEN', // Must match the cookie set by the backend.
+        headerName: 'X-XSRF-TOKEN', // Must match what the backend expects.
+      }),
+    ),
   ],
 };

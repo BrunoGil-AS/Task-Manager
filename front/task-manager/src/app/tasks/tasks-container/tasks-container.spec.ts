@@ -38,8 +38,10 @@ describe('TasksContainer', () => {
           useValue: {
             tasks: tasksSignal,
             loading: signal(false),
+            pagination: signal({ page: 1, pageSize: 20, count: 2, totalPages: 1 }),
             addTask: vi.fn().mockReturnValue(of({})),
             refreshTasks: vi.fn(),
+            setPage: vi.fn(),
             getTasksSnapshot: vi.fn(() => tasksSignal()),
             removeTaskFromStore: vi.fn(),
             deleteTask: vi.fn().mockReturnValue(of({})),

@@ -12,8 +12,9 @@
       <div class="tasks-header-info">
         <h2>Tareas</h2>
         <p class="tasks-count">
-          Total: <span id="totalCount">{{ filteredTasks().length }}</span> tareas
+          Total: <span id="totalCount">{{ pagination().count }}</span> tareas
         </p>
+        <p class="tasks-count">Página {{ pagination().page }} de {{ pagination().totalPages }}</p>
       </div>
       <button class="btn btn-primary" type="button" (click)="toggleCreateForm()">
         {{ showCreateForm() ? 'Cerrar' : 'Nueva tarea' }}
@@ -98,6 +99,30 @@
         <!-- Empty state -->
         <div class="empty-state">
           <p>No hay tareas para mostrar</p>
+        </div>
+      }
+
+      @if (pagination().totalPages > 1) {
+        <div class="pagination-controls">
+          <button
+            class="btn btn-secondary"
+            type="button"
+            (click)="previousPage()"
+            [disabled]="loading() || pagination().page <= 1"
+          >
+            Anterior
+          </button>
+          <span class="pagination-status">
+            Página {{ pagination().page }} de {{ pagination().totalPages }}
+          </span>
+          <button
+            class="btn btn-secondary"
+            type="button"
+            (click)="nextPage()"
+            [disabled]="loading() || pagination().page >= pagination().totalPages"
+          >
+            Siguiente
+          </button>
         </div>
       }
     </div>

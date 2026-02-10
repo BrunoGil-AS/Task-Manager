@@ -213,6 +213,19 @@
   min-height: 0;
 }
 
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm) 0;
+}
+
+.pagination-status {
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-600);
+}
+
 .task-cards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
