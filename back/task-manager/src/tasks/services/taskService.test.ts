@@ -72,6 +72,40 @@ describe("TaskService", () => {
     expect(range).toHaveBeenCalledWith(0, 19);
   });
 
+  // Filtering/sorting: completed filter and ascending title sort.
+  it("getTasksByUser applies status filter and custom sort", async () => {
+    const tasks = [{ id: 2, title: "Alpha", completed: true }];
+    const range = mockAsync<{ data: typeof tasks; error: null; count: number }>();
+    range.mockResolvedValue({ data: tasks, error: null, count: 1 });
+    const order = mockSync<{ range: typeof range }>(() => ({ range }));
+    const eqCompleted = mockSync<{ order: typeof order }>(() => ({ order }));
+    const eqOwner = mockSync<{ eq: typeof eqCompleted }>(() => ({ eq: eqCompleted }));
+    const select = mockSync<{ eq: typeof eqOwner }>(() => ({ eq: eqOwner }));
+    const from = mockSync<{ select: typeof select }>(() => ({ select }));
+
+    createAuthenticatedClient.mockReturnValue({ from });
+
+    const service = new TaskService();
+    const result = await service.getTasksByUser("user-1", "token-1", {
+      page: 2,
+      pageSize: 10,
+      status: "completed",
+      sortBy: "title",
+      sortOrder: "asc",
+    });
+
+    expect(result).toEqual({
+      data: tasks,
+      count: 1,
+      page: 2,
+      pageSize: 10,
+    });
+    expect(eqOwner).toHaveBeenCalledWith("owner_id", "user-1");
+    expect(eqCompleted).toHaveBeenCalledWith("completed", true);
+    expect(order).toHaveBeenCalledWith("title", { ascending: true });
+    expect(range).toHaveBeenCalledWith(10, 19);
+  });
+
   // Error path: surface Supabase error as a thrown exception.
   it("getTasksByUser throws on supabase error", async () => {
     const range = mockAsync<{
@@ -180,6 +214,7 @@ describe("TaskService", () => {
       title: "New",
       description: null,
       owner_id: "user-1",
+      completed: false,
     });
   });
 

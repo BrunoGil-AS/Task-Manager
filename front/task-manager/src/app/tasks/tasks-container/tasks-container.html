@@ -1,12 +1,10 @@
 <div class="tasks-container">
-  <!-- Sidebar -->
   <app-sidebar
     class="tasks-sidebar"
     [mode]="'container'"
     (statusChange)="setFilter($event)"
   ></app-sidebar>
 
-  <!-- Task List Content -->
   <div class="tasks-content">
     <div class="tasks-header">
       <div class="tasks-header-info">
@@ -14,7 +12,17 @@
         <p class="tasks-count">
           Total: <span id="totalCount">{{ pagination().count }}</span> tareas
         </p>
-        <p class="tasks-count">Página {{ pagination().page }} de {{ pagination().totalPages }}</p>
+        <p class="tasks-count">Pagina {{ pagination().page }} de {{ pagination().totalPages }}</p>
+        <label class="tasks-count" for="taskSort">
+          Orden:
+          <select id="taskSort" [value]="sortOption()" (change)="setSort($any($event.target).value)">
+            <option value="created_desc">Mas recientes</option>
+            <option value="created_asc">Mas antiguas</option>
+            <option value="updated_desc">Actualizadas recientemente</option>
+            <option value="title_asc">Titulo A-Z</option>
+            <option value="title_desc">Titulo Z-A</option>
+          </select>
+        </label>
       </div>
       <button class="btn btn-primary" type="button" (click)="toggleCreateForm()">
         {{ showCreateForm() ? 'Cerrar' : 'Nueva tarea' }}
@@ -27,23 +35,23 @@
 
         <form class="task-form" [formGroup]="createForm" (submit)="createTask()">
           <div class="form-group">
-            <label for="newTaskTitle" class="form-label required">Título</label>
+            <label for="newTaskTitle" class="form-label required">Titulo</label>
             <input
               type="text"
               id="newTaskTitle"
               class="form-input"
               formControlName="title"
-              placeholder="Ingresa el título de la tarea"
+              placeholder="Ingresa el titulo de la tarea"
             />
           </div>
 
           <div class="form-group">
-            <label for="newTaskDescription" class="form-label">Descripción</label>
+            <label for="newTaskDescription" class="form-label">Descripcion</label>
             <textarea
               id="newTaskDescription"
               class="form-textarea"
               formControlName="description"
-              placeholder="Ingresa una descripción detallada de la tarea"
+              placeholder="Ingresa una descripcion detallada de la tarea"
               rows="5"
             ></textarea>
           </div>
@@ -57,9 +65,7 @@
                 class="form-checkbox"
                 formControlName="completed"
               />
-              <label for="newTaskCompleted" class="form-checkbox-label">
-                Marcar como completada
-              </label>
+              <label for="newTaskCompleted" class="form-checkbox-label">Marcar como completada</label>
             </div>
           </div>
 
@@ -88,7 +94,6 @@
         </div>
       } @else {
         <div class="task-cards-grid">
-          <!-- TaskCard components will be rendered here -->
           @for (task of filteredTasks(); track task.id) {
             <app-task-card [task]="task" (delete_)="deletingTask($event)"></app-task-card>
           }
@@ -96,7 +101,6 @@
       }
 
       @if (!loading() && filteredTasks().length === 0) {
-        <!-- Empty state -->
         <div class="empty-state">
           <p>No hay tareas para mostrar</p>
         </div>
@@ -113,7 +117,7 @@
             Anterior
           </button>
           <span class="pagination-status">
-            Página {{ pagination().page }} de {{ pagination().totalPages }}
+            Pagina {{ pagination().page }} de {{ pagination().totalPages }}
           </span>
           <button
             class="btn btn-secondary"

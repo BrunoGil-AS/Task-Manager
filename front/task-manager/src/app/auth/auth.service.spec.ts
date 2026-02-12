@@ -1,7 +1,9 @@
 import { TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import type { AuthChangeEvent, Session, User } from '@supabase/supabase-js';
+import { apiRoutes } from '../core/api-routes';
 
 import { AuthService } from './auth.service';
 import SupabaseService from '../supabase/supabase.service';
@@ -9,6 +11,7 @@ import SupabaseService from '../supabase/supabase.service';
 describe('AuthService', () => {
   let service: AuthService;
   let router: Router;
+  let httpMock: HttpTestingController;
 
   const user: User = {
     id: 'u1',
@@ -42,8 +45,6 @@ describe('AuthService', () => {
     signUp: vi.fn(),
     signInWithPassword: vi.fn(),
     signOut: vi.fn(),
-    resetPasswordForEmail: vi.fn(),
-    updateUser: vi.fn(),
   };
 
   const supabaseServiceStub = {
@@ -55,6 +56,7 @@ describe('AuthService', () => {
   beforeEach(() => {
     authClient.getSession.mockResolvedValue({ data: { session } });
     TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
       providers: [
         AuthService,
         { provide: SupabaseService, useValue: supabaseServiceStub },
@@ -64,6 +66,11 @@ describe('AuthService', () => {
 
     service = TestBed.inject(AuthService);
     router = TestBed.inject(Router);
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => {
+    httpMock.verify();
   });
 
   it('should initialize and set current user', async () => {
@@ -94,9 +101,7 @@ describe('AuthService', () => {
   it('should sign in and set user', async () => {
     authClient.signInWithPassword.mockResolvedValue({ data: { user }, error: null });
 
-    const res = await firstValueFrom(
-      service.signIn({ email: 'a@a.com', password: 'secret12' }),
-    );
+    const res = await firstValueFrom(service.signIn({ email: 'a@a.com', password: 'secret12' }));
 
     expect(res.success).toBe(true);
     expect(service.currentUser?.id).toBe('u1');
@@ -111,19 +116,28 @@ describe('AuthService', () => {
     expect(service.currentUser).toBeNull();
   });
 
-  it('should send reset password email', async () => {
-    authClient.resetPasswordForEmail.mockResolvedValue({ error: null });
+  it('should request password reset over backend API', async () => {
+    const responsePromise = firstValueFrom(service.requestPasswordReset('a@a.com'));
 
-    const res = await firstValueFrom(service.resetPassword('a@a.com'));
+    const req = httpMock.expectOne(apiRoutes.authForgotPassword);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({ email: 'a@a.com' });
+    req.flush({ success: true, message: 'Password reset email sent' });
 
+    const res = await responsePromise;
     expect(res.success).toBe(true);
   });
 
-  it('should update password', async () => {
-    authClient.updateUser.mockResolvedValue({ error: null });
+  it('should reset password over backend API with recovery token', async () => {
+    const responsePromise = firstValueFrom(service.resetPassword('recovery-token', 'newpass123'));
 
-    const res = await firstValueFrom(service.updatePassword('newpass'));
+    const req = httpMock.expectOne(apiRoutes.authResetPassword);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({ password: 'newpass123' });
+    expect(req.request.headers.get('Authorization')).toBe('Bearer recovery-token');
+    req.flush({ success: true, message: 'Password updated successfully' });
 
+    const res = await responsePromise;
     expect(res.success).toBe(true);
   });
 });

@@ -10,6 +10,8 @@ describe('TasksContainer', () => {
   let component: TasksContainer;
   let fixture: ComponentFixture<TasksContainer>;
   let taskService: TaskService;
+  const loadingSignal = signal(false);
+  const paginationSignal = signal({ page: 1, pageSize: 20, count: 2, totalPages: 1 });
   const tasksSignal = signal<Task[]>([
     {
       id: 1,
@@ -37,11 +39,12 @@ describe('TasksContainer', () => {
           provide: TaskService,
           useValue: {
             tasks: tasksSignal,
-            loading: signal(false),
-            pagination: signal({ page: 1, pageSize: 20, count: 2, totalPages: 1 }),
+            loading: loadingSignal,
+            pagination: paginationSignal,
             addTask: vi.fn().mockReturnValue(of({})),
             refreshTasks: vi.fn(),
             setPage: vi.fn(),
+            setSort: vi.fn(),
             getTasksSnapshot: vi.fn(() => tasksSignal()),
             removeTaskFromStore: vi.fn(),
             deleteTask: vi.fn().mockReturnValue(of({})),
@@ -54,6 +57,26 @@ describe('TasksContainer', () => {
     fixture = TestBed.createComponent(TasksContainer);
     component = fixture.componentInstance;
     taskService = TestBed.inject(TaskService);
+    loadingSignal.set(false);
+    paginationSignal.set({ page: 1, pageSize: 20, count: 2, totalPages: 1 });
+    tasksSignal.set([
+      {
+        id: 1,
+        title: 'Task 1',
+        description: 'Desc',
+        completed: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: 2,
+        title: 'Task 2',
+        description: 'Desc',
+        completed: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ]);
     fixture.detectChanges();
     await fixture.whenStable();
   });
@@ -108,5 +131,23 @@ describe('TasksContainer', () => {
 
     expect(taskService.removeTaskFromStore).toHaveBeenCalledWith(1);
     expect(taskService.restoreTasks).toHaveBeenCalledWith(previousTasks);
+  });
+
+  it('should set sorting on task service', () => {
+    component.setSort('title_asc');
+
+    expect((taskService as any).setSort).toHaveBeenCalledWith('title', 'asc');
+  });
+
+  it('should render empty state when there are no tasks and not loading', async () => {
+    tasksSignal.set([]);
+    loadingSignal.set(false);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('.empty-state p')?.textContent).toContain(
+      'No hay tareas para mostrar',
+    );
   });
 });

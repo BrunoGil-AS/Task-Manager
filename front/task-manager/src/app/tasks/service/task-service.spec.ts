@@ -20,7 +20,9 @@ describe('TaskService', () => {
       (req) =>
         req.url === apiRoutes.tasksApi + '/tasks' &&
         req.params.get('page') === '1' &&
-        req.params.get('pageSize') === '20',
+        req.params.get('pageSize') === '20' &&
+        req.params.get('sortBy') === 'createdAt' &&
+        req.params.get('sortOrder') === 'desc',
     );
     initReq.flush({ success: true, data: [], count: 0, page: 1, pageSize: 20 });
   });
@@ -61,7 +63,9 @@ describe('TaskService', () => {
       (req) =>
         req.url === apiRoutes.tasksApi + '/tasks' &&
         req.params.get('page') === '1' &&
-        req.params.get('pageSize') === '20',
+        req.params.get('pageSize') === '20' &&
+        req.params.get('sortBy') === 'createdAt' &&
+        req.params.get('sortOrder') === 'desc',
     );
     expect(req.request.method).toBe('GET');
     req.flush(apiResponse);
@@ -126,5 +130,20 @@ describe('TaskService', () => {
     const req = httpMock.expectOne(apiRoutes.tasksApi + '/tasks/1');
     expect(req.request.method).toBe('GET');
     req.flush(apiResponse);
+  });
+
+  it('should request tasks with custom sorting', () => {
+    service.setSort('title', 'asc');
+
+    const req = httpMock.expectOne(
+      (request) =>
+        request.url === apiRoutes.tasksApi + '/tasks' &&
+        request.params.get('page') === '1' &&
+        request.params.get('pageSize') === '20' &&
+        request.params.get('sortBy') === 'title' &&
+        request.params.get('sortOrder') === 'asc',
+    );
+    expect(req.request.method).toBe('GET');
+    req.flush({ success: true, data: [], count: 0, page: 1, pageSize: 20 });
   });
 });

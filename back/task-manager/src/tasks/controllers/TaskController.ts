@@ -8,6 +8,10 @@ import type {
   MessageResponseDTO,
 } from "./TaskControllerDTOs.js";
 
+type TaskStatusFilter = "all" | "pending" | "completed";
+type TaskSortBy = "createdAt" | "updatedAt" | "title";
+type TaskSortOrder = "asc" | "desc";
+
 export class TaskController {
   async getAllTasks(req: Request, res: Response): Promise<void> {
     try {
@@ -32,13 +36,32 @@ export class TaskController {
         Number.isFinite(pageSize) && pageSize > 0
           ? Math.min(pageSize, 100)
           : 20;
+      const rawStatus = String((query as Record<string, unknown>).status ?? "all");
+      const rawSortBy = String((query as Record<string, unknown>).sortBy ?? "createdAt");
+      const rawSortOrder = String((query as Record<string, unknown>).sortOrder ?? "desc");
+
+      const safeStatus: TaskStatusFilter =
+        rawStatus === "pending" || rawStatus === "completed" ? rawStatus : "all";
+      const safeSortBy: TaskSortBy =
+        rawSortBy === "title" || rawSortBy === "updatedAt" ? rawSortBy : "createdAt";
+      const safeSortOrder: TaskSortOrder = rawSortOrder === "asc" ? "asc" : "desc";
 
       const result = await taskService.getTasksByUser(userId, accessToken, {
         page: safePage,
         pageSize: safePageSize,
+        status: safeStatus,
+        sortBy: safeSortBy,
+        sortOrder: safeSortOrder,
       });
       log.debug(
-        { userId, count: result.data.length, page: safePage },
+        {
+          userId,
+          count: result.data.length,
+          page: safePage,
+          status: safeStatus,
+          sortBy: safeSortBy,
+          sortOrder: safeSortOrder,
+        },
         "tasks.getAll.ok",
       );
       const response: TaskListResponseDTO = {

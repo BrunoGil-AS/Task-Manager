@@ -1,6 +1,7 @@
 import express from "express";
 import tasksRouter from "./tasks/routes/router.js";
 import usersRouter from "./users/routes/router.js";
+import authRouter from "./auth/routes/authRoutes.js";
 import { loggingMiddleware } from "./middleware/loggingMiddleware.js";
 import cors, { type CorsOptions } from "cors";
 import ApiError from "./error/ApiError.js";
@@ -81,6 +82,7 @@ app.use(responseTimeMiddleware);
 // API routes
 app.use("/api/tasks", tasksRouter);
 app.use("/api/users", usersRouter);
+app.use("/api/auth", authRouter);
 // Health check
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "OK" });

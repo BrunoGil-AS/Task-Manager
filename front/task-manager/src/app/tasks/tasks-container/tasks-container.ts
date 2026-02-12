@@ -3,6 +3,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { Sidebar } from '../../UI/sidebar/sidebar';
 import { TaskCard } from '../task-card/task-card';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import type { TaskSortBy, TaskSortOrder } from '../service/task-service';
 
 @Component({
   selector: 'app-tasks-container',
@@ -19,6 +20,9 @@ export class TasksContainer {
   loading = this.taskService.loading;
   pagination = this.taskService.pagination;
   filterStatus = signal<'all' | 'pending' | 'completed'>('all');
+  sortOption = signal<'created_desc' | 'created_asc' | 'updated_desc' | 'title_asc' | 'title_desc'>(
+    'created_desc',
+  );
 
   filteredTasks = computed(() => {
     const tasks = this.tasks();
@@ -71,6 +75,27 @@ export class TasksContainer {
 
   setFilter(status: 'all' | 'pending' | 'completed') {
     this.filterStatus.set(status);
+  }
+
+  setSort(option: 'created_desc' | 'created_asc' | 'updated_desc' | 'title_asc' | 'title_desc') {
+    this.sortOption.set(option);
+
+    const map: Record<
+      typeof option,
+      {
+        sortBy: TaskSortBy;
+        sortOrder: TaskSortOrder;
+      }
+    > = {
+      created_desc: { sortBy: 'createdAt', sortOrder: 'desc' },
+      created_asc: { sortBy: 'createdAt', sortOrder: 'asc' },
+      updated_desc: { sortBy: 'updatedAt', sortOrder: 'desc' },
+      title_asc: { sortBy: 'title', sortOrder: 'asc' },
+      title_desc: { sortBy: 'title', sortOrder: 'desc' },
+    };
+
+    const target = map[option];
+    this.taskService.setSort(target.sortBy, target.sortOrder);
   }
 
   nextPage() {

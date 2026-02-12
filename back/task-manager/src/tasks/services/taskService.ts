@@ -3,6 +3,10 @@ import type { Task } from "../../types/database.types.js";
 import type { CreateTaskDTO, UpdateTaskDTO } from "../models/Task.js";
 import { logger } from "../../config/logger.js";
 
+type TaskStatusFilter = "all" | "pending" | "completed";
+type TaskSortBy = "createdAt" | "updatedAt" | "title";
+type TaskSortOrder = "asc" | "desc";
+
 export class TaskService {
   /**
    * Obtener todas las tareas de un usuario
@@ -10,22 +14,56 @@ export class TaskService {
   async getTasksByUser(
     userId: string,
     accessToken: string,
-    options: { page: number; pageSize: number } = { page: 1, pageSize: 20 },
+    options: {
+      page: number;
+      pageSize: number;
+      status?: TaskStatusFilter;
+      sortBy?: TaskSortBy;
+      sortOrder?: TaskSortOrder;
+    } = {
+      page: 1,
+      pageSize: 20,
+      status: "all",
+      sortBy: "createdAt",
+      sortOrder: "desc",
+    },
   ): Promise<{ data: Task[]; count: number; page: number; pageSize: number }> {
     const log = logger.child({ userId, scope: "tasks.getAll" });
     // Start timer to flag slow queries.
     const start = process.hrtime.bigint();
     const supabase = createAuthenticatedClient(accessToken);
+    const safeStatus = options.status ?? "all";
+    const safeSortBy = options.sortBy ?? "createdAt";
+    const safeSortOrder = options.sortOrder ?? "desc";
+    const sortColumnByField: Record<
+      TaskSortBy,
+      "created_at" | "updated_at" | "title"
+    > = {
+      createdAt: "created_at",
+      updatedAt: "updated_at",
+      title: "title",
+    };
+    const sortColumn = sortColumnByField[safeSortBy];
+    const isAscending = safeSortOrder === "asc";
     // Pagination window for the current page.
     const from = (options.page - 1) * options.pageSize;
     const to = from + options.pageSize - 1;
-    const { data, error, count } = await supabase
+
+    let query = supabase
       .from("tasks")
       .select("*", {
         count: "exact",
       })
-      .eq("owner_id", userId)
-      .order("created_at", { ascending: false })
+      .eq("owner_id", userId);
+
+    if (safeStatus === "pending") {
+      query = query.eq("completed", false);
+    } else if (safeStatus === "completed") {
+      query = query.eq("completed", true);
+    }
+
+    const { data, error, count } = await query
+      .order(sortColumn, { ascending: isAscending })
       .range(from, to);
 
     const durationMs = Number(process.hrtime.bigint() - start) / 1_000_000;
@@ -46,13 +84,23 @@ export class TaskService {
           slowQueryMs,
           page: options.page,
           pageSize: options.pageSize,
+          status: safeStatus,
+          sortBy: safeSortBy,
+          sortOrder: safeSortOrder,
         },
         "supabase.slow_query",
       );
     }
 
     log.debug(
-      { count: data?.length ?? 0, durationMs, page: options.page },
+      {
+        count: data?.length ?? 0,
+        durationMs,
+        page: options.page,
+        status: safeStatus,
+        sortBy: safeSortBy,
+        sortOrder: safeSortOrder,
+      },
       "supabase.ok",
     );
 

@@ -18,8 +18,14 @@ export class LoginComponent {
   loginForm: FormGroup;
   loading$ = this.authService.loading$;
   errorMessage = '';
+  successMessage = '';
 
   constructor() {
+    this.successMessage = sessionStorage.getItem('passwordResetSuccess') || '';
+    if (this.successMessage) {
+      sessionStorage.removeItem('passwordResetSuccess');
+    }
+
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],

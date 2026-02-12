@@ -1,10 +1,12 @@
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable, from, of } from 'rxjs';
-import { map, catchError, tap, switchMap, finalize } from 'rxjs/operators';
 import { AuthChangeEvent, Session, User } from '@supabase/supabase-js';
+import { BehaviorSubject, Observable, from } from 'rxjs';
+import { catchError, finalize, map, tap } from 'rxjs/operators';
+import { apiRoutes } from '../core/api-routes';
 import SupabaseService from '../supabase/supabase.service';
-import { LoginCredentials, RegisterData, AuthUser } from './models/auth.model';
+import { AuthUser, LoginCredentials, RegisterData } from './models/auth.model';
 
 @Injectable({
   providedIn: 'root',
@@ -25,6 +27,7 @@ export class AuthService {
   constructor(
     private supabaseService: SupabaseService,
     private router: Router,
+    private http: HttpClient,
   ) {
     // Initialize session when the app loads
     this.initializeAuth();
@@ -196,53 +199,54 @@ export class AuthService {
     return this.currentUserSubject.value !== null;
   }
 
-  /**
-   * Send password reset email
-   */
-  resetPassword(email: string): Observable<{ success: boolean; message: string }> {
+  requestPasswordReset(email: string): Observable<{ success: boolean; message: string }> {
     this.loadingSubject.next(true);
 
-    return from(
-      this.supabaseService.client.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/update-password`,
-      }),
-    ).pipe(
-      map(({ error }) => {
-        if (error) throw error;
-
-        return {
-          success: true,
-          message: 'Revisa tu email para restablecer tu contraseña',
-        };
-      }),
-      tap(() => this.loadingSubject.next(false)),
-      catchError((error) => {
-        this.loadingSubject.next(false);
-        throw error;
-      }),
-    );
+    return this.http
+      .post<{ success: boolean; message: string; error?: string }>(apiRoutes.authForgotPassword, {
+        email,
+      })
+      .pipe(
+        map((response) => {
+          if (!response.success) {
+            throw new Error(response.error || 'No se pudo enviar el enlace de recuperacion');
+          }
+          return {
+            success: true,
+            message: response.message || 'Check your email for the password reset link',
+          };
+        }),
+        finalize(() => this.loadingSubject.next(false)),
+      );
   }
 
-  /**
-   * Update password
-   */
-  updatePassword(newPassword: string): Observable<{ success: boolean }> {
+  resetPassword(
+    token: string,
+    newPassword: string,
+  ): Observable<{ success: boolean; message: string }> {
     this.loadingSubject.next(true);
 
-    return from(
-      this.supabaseService.client.auth.updateUser({
-        password: newPassword,
-      }),
-    ).pipe(
-      map(({ error }) => {
-        if (error) throw error;
-        return { success: true };
-      }),
-      tap(() => this.loadingSubject.next(false)),
-      catchError((error) => {
-        this.loadingSubject.next(false);
-        throw error;
-      }),
-    );
+    return this.http
+      .post<{ success: boolean; message: string; error?: string }>(
+        apiRoutes.authResetPassword,
+        { password: newPassword },
+        {
+          headers: new HttpHeaders({
+            Authorization: `Bearer ${token}`,
+          }),
+        },
+      )
+      .pipe(
+        map((response) => {
+          if (!response.success) {
+            throw new Error(response.error || 'No se pudo actualizar la contrasena');
+          }
+          return {
+            success: true,
+            message: response.message || 'Password updated successfully',
+          };
+        }),
+        finalize(() => this.loadingSubject.next(false)),
+      );
   }
 }

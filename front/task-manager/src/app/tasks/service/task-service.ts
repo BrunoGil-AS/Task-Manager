@@ -6,6 +6,9 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { apiRoutes } from '../../core/api-routes';
 import ApiResponse from './model/api-response';
 
+export type TaskSortBy = 'createdAt' | 'updatedAt' | 'title';
+export type TaskSortOrder = 'asc' | 'desc';
+
 /**
  * Service for managing tasks.
  *
@@ -43,7 +46,17 @@ export class TaskService {
   /**
    * Tracks the latest pagination parameters.
    */
-  private lastQuery = { page: 1, pageSize: 20 };
+  private lastQuery: {
+    page: number;
+    pageSize: number;
+    sortBy: TaskSortBy;
+    sortOrder: TaskSortOrder;
+  } = {
+    page: 1,
+    pageSize: 20,
+    sortBy: 'createdAt',
+    sortOrder: 'desc',
+  };
 
   /**
    * Internal store for pagination metadata.
@@ -101,7 +114,16 @@ export class TaskService {
   setPage(page: number) {
     const safePage = Number.isFinite(page) && page > 0 ? page : 1;
     const { pageSize } = this.paginationSubject.value;
-    this.loadTasks(true, safePage, pageSize);
+    const { sortBy, sortOrder } = this.lastQuery;
+    this.loadTasks(true, safePage, pageSize, sortBy, sortOrder);
+  }
+
+  /**
+   * Changes task sorting and reloads from first page.
+   */
+  setSort(sortBy: TaskSortBy, sortOrder: TaskSortOrder) {
+    const { pageSize } = this.paginationSubject.value;
+    this.loadTasks(true, 1, pageSize, sortBy, sortOrder);
   }
 
   /**
@@ -113,25 +135,35 @@ export class TaskService {
    * @param {boolean} [force=false] Forces a reload even if tasks have already been loaded.
    * @memberof TaskService
    */
-  private loadTasks(force = false, page = this.lastQuery.page, pageSize = this.lastQuery.pageSize) {
+  private loadTasks(
+    force = false,
+    page = this.lastQuery.page,
+    pageSize = this.lastQuery.pageSize,
+    sortBy: TaskSortBy = this.lastQuery.sortBy,
+    sortOrder: TaskSortOrder = this.lastQuery.sortOrder,
+  ) {
     // Skip loading if already loaded and not forced, and pagination hasn't changed.
     if (
       this.hasLoaded &&
       !force &&
       page === this.lastQuery.page &&
-      pageSize === this.lastQuery.pageSize
+      pageSize === this.lastQuery.pageSize &&
+      sortBy === this.lastQuery.sortBy &&
+      sortOrder === this.lastQuery.sortOrder
     ) {
       return;
     }
 
     this.loadingSubject.next(true);
-    this.lastQuery = { page, pageSize }; // Update last query parameters.
+    this.lastQuery = { page, pageSize, sortBy, sortOrder }; // Update last query parameters.
 
     this.http
       .get<ApiResponse>(apiRoutes.tasksApi + '/tasks', {
         params: {
           page,
           pageSize,
+          sortBy,
+          sortOrder,
         },
       })
       .pipe(
