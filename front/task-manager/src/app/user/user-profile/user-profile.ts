@@ -7,6 +7,9 @@ import { UserProfileSecurity } from '../profile-security/profile-security';
 import type { ProfileFormValue } from '../profile-form/profile-form';
 import { UserService } from '../service/user-service';
 
+/**
+ * Container component for the authenticated user's profile view and actions.
+ */
 @Component({
   selector: 'app-user-profile',
   imports: [AsyncPipe, UserProfileSummary, UserProfileForm, UserProfileSecurity],
@@ -19,6 +22,9 @@ export class UserProfile {
 
   user$ = this.authService.currentUser$;
 
+  /**
+   * Persists profile changes through `UserService`.
+   */
   handleSave(payload: ProfileFormValue): void {
     this.userService.updateProfile({ name: payload.name }).subscribe({
       next: (updatedUser) => {
@@ -30,11 +36,17 @@ export class UserProfile {
     });
   }
 
+  /**
+   * Handles cancellation of profile edits.
+   */
   handleCancel(): void {
     // TODO: Hook to reset any parent-level edit state if needed.
     console.log('Profile edit canceled');
   }
 
+  /**
+   * Signs out the current user session.
+   */
   logout(): void {
     this.authService.signOut().subscribe();
   }

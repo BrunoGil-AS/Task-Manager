@@ -4,6 +4,9 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../auth/auth.service';
 
+/**
+ * Form component for requesting a password reset email.
+ */
 @Component({
   selector: 'app-forgot-password',
   standalone: true,
@@ -23,6 +26,9 @@ export class ForgotPasswordComponent {
   errorMessage = '';
   successMessage = '';
 
+  /**
+   * Submits the forgot-password request.
+   */
   onSubmit() {
     if (this.forgotPasswordForm.invalid) {
       this.forgotPasswordForm.markAllAsTouched();
@@ -44,10 +50,16 @@ export class ForgotPasswordComponent {
     });
   }
 
+  /**
+   * Exposes email control for template validation.
+   */
   get emailControl() {
     return this.forgotPasswordForm.get('email');
   }
 
+  /**
+   * Normalizes API/client errors to a displayable message.
+   */
   private getErrorMessage(error: unknown): string {
     if (error && typeof error === 'object' && 'error' in error) {
       const apiError = error as { error?: { error?: string; message?: string } };

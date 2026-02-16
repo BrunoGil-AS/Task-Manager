@@ -4,6 +4,9 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../auth.service';
 import { AsyncPipe } from '@angular/common';
 
+/**
+ * Registration form component for creating new user accounts.
+ */
 @Component({
   selector: 'app-register',
   templateUrl: './register.html',
@@ -34,6 +37,9 @@ export class RegisterComponent {
   }
 
   // Validador personalizado para confirmar contraseña
+  /**
+   * Ensures `password` and `confirmPassword` fields match.
+   */
   private passwordMatchValidator(form: FormGroup) {
     const password = form.get('password');
     const confirmPassword = form.get('confirmPassword');
@@ -46,6 +52,9 @@ export class RegisterComponent {
     return null;
   }
 
+  /**
+   * Submits registration data and handles post-registration messaging.
+   */
   onSubmit(): void {
     if (this.registerForm.invalid) {
       this.registerForm.markAllAsTouched();
@@ -76,18 +85,30 @@ export class RegisterComponent {
   }
 
   // Getters para validación
+  /**
+   * Exposes the name control for template validation state.
+   */
   get name() {
     return this.registerForm.get('name');
   }
 
+  /**
+   * Exposes the email control for template validation state.
+   */
   get email() {
     return this.registerForm.get('email');
   }
 
+  /**
+   * Exposes the password control for template validation state.
+   */
   get password() {
     return this.registerForm.get('password');
   }
 
+  /**
+   * Exposes the confirm-password control for template validation state.
+   */
   get confirmPassword() {
     return this.registerForm.get('confirmPassword');
   }

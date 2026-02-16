@@ -8,7 +8,13 @@ const FRONTEND_RESET_PASSWORD_URL =
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MIN_PASSWORD_LENGTH = 6;
 
+/**
+ * HTTP controller for password recovery and password reset endpoints.
+ */
 export class AuthController {
+  /**
+   * Handles `POST /api/auth/forgot-password` by requesting a reset email.
+   */
   async requestPasswordReset(req: Request, res: Response): Promise<void> {
     const log = getRequestLogger(req);
     try {
@@ -48,6 +54,9 @@ export class AuthController {
     }
   }
 
+  /**
+   * Handles `POST /api/auth/reset-password` using the authenticated recovery token.
+   */
   async updatePassword(req: Request, res: Response): Promise<void> {
     const log = getRequestLogger(req);
     try {

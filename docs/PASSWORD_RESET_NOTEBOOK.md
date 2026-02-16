@@ -1,16 +1,16 @@
-# Notebook: Implementacion de Recuperacion de Contrasena
+# Notebook: Password Recovery Implementation
 
-## 1. Objetivo exacto
+## 1. Exact objective
 
-Se implemento un flujo de password recovery con estas reglas:
+A password recovery flow was implemented with these rules:
 
-- El usuario pide recuperacion desde frontend.
-- El backend delega a Supabase el envio del email.
-- Supabase redirige al frontend con token en `#fragment`.
-- El frontend toma `access_token` del `fragment` y llama backend.
-- El backend actualiza contrasena en Supabase usando ese token.
+- The user requests recovery from the frontend.
+- The backend delegates email delivery to Supabase.
+- Supabase redirects to the frontend with token data in `#fragment`.
+- The frontend reads `access_token` from the fragment and calls backend.
+- The backend updates the password in Supabase using that token.
 
-## 2. Contratos de API implementados
+## 2. Implemented API contracts
 
 ### `POST /api/auth/forgot-password`
 
@@ -23,7 +23,7 @@ Se implemento un flujo de password recovery con estas reglas:
 }
 ```
 
-- Respuesta exito `200`:
+- Success response `200`:
 
 ```json
 {
@@ -32,7 +32,7 @@ Se implemento un flujo de password recovery con estas reglas:
 }
 ```
 
-- Respuesta error validacion `400`:
+- Validation error response `400`:
 
 ```json
 {
@@ -41,7 +41,7 @@ Se implemento un flujo de password recovery con estas reglas:
 }
 ```
 
-- Respuesta error servidor/Supabase `500`:
+- Server/Supabase error response `500`:
 
 ```json
 {
@@ -53,7 +53,7 @@ Se implemento un flujo de password recovery con estas reglas:
 ### `POST /api/auth/reset-password`
 
 - URL: `http://localhost:3000/api/auth/reset-password`
-- Header requerido:
+- Required header:
 
 ```http
 Authorization: Bearer <recovery_access_token>
@@ -67,7 +67,7 @@ Authorization: Bearer <recovery_access_token>
 }
 ```
 
-- Respuesta exito `200`:
+- Success response `200`:
 
 ```json
 {
@@ -76,7 +76,7 @@ Authorization: Bearer <recovery_access_token>
 }
 ```
 
-- Respuesta token invalido/expirado `401`:
+- Invalid/expired token response `401`:
 
 ```json
 {
@@ -85,7 +85,7 @@ Authorization: Bearer <recovery_access_token>
 }
 ```
 
-- Respuesta password invalida `400`:
+- Invalid password response `400`:
 
 ```json
 {
@@ -94,163 +94,163 @@ Authorization: Bearer <recovery_access_token>
 }
 ```
 
-## 3. Flujo tecnico implementado (paso a paso)
+## 3. Implemented technical flow (step by step)
 
-1. Login muestra link `Forgot password?`.
-2. Usuario entra a `/forgot-password`.
-3. Componente valida email y usa `AuthService.requestPasswordReset(email)`.
-4. `AuthService` llama backend `POST /api/auth/forgot-password`.
-5. Backend ejecuta `supabase.auth.resetPasswordForEmail` con `redirectTo`.
-6. Email de Supabase redirige a:
+1. Login shows `Forgot password?` link.
+2. User navigates to `/forgot-password`.
+3. Component validates email and calls `AuthService.requestPasswordReset(email)`.
+4. `AuthService` calls backend `POST /api/auth/forgot-password`.
+5. Backend runs `supabase.auth.resetPasswordForEmail` with `redirectTo`.
+6. Supabase email redirects to:
    - `http://localhost:4200/reset-password#access_token=...&type=recovery`
-7. `ResetPasswordComponent` usa `ActivatedRoute.fragment`.
-8. Si encuentra `#error=...`, muestra mensaje user-friendly.
-9. Si encuentra `#access_token=...`, habilita submit de nueva password.
-10. `AuthService.resetPassword(token, newPassword)` llama backend.
-11. Backend usa `createAuthenticatedClient(token).auth.updateUser({ password })`.
-12. En exito, frontend redirige a `/auth/login` y muestra mensaje final.
+7. `ResetPasswordComponent` reads `ActivatedRoute.fragment`.
+8. If `#error=...` exists, it shows a user-friendly message.
+9. If `#access_token=...` exists, new password submission is enabled.
+10. `AuthService.resetPassword(token, newPassword)` calls backend.
+11. Backend uses `createAuthenticatedClient(token).auth.updateUser({ password })`.
+12. On success, frontend redirects to `/auth/login` and shows final message.
 
-## 4. Detalle por archivo creado (que hace cada uno)
+## 4. File-by-file detail (what each one does)
 
 ### Backend
 
 - [`back/task-manager/src/auth/controllers/authController.ts`](../back/task-manager/src/auth/controllers/authController.ts)
-  - Crea `AuthController`.
-  - Metodo `requestPasswordReset`.
-  - Metodo `updatePassword`.
-  - Validaciones:
-    - Email con regex.
-    - Password minima de 6.
-  - Manejo de errores por status (`400`, `401`, `500`).
-  - Config fallback redirect: `http://localhost:4200/reset-password`.
+  - Defines `AuthController`.
+  - Method `requestPasswordReset`.
+  - Method `updatePassword`.
+  - Validations:
+    - Email regex.
+    - Minimum password length of 6.
+  - Error handling by status (`400`, `401`, `500`).
+  - Fallback redirect config: `http://localhost:4200/reset-password`.
 
 - [`back/task-manager/src/auth/routes/authRoutes.ts`](../back/task-manager/src/auth/routes/authRoutes.ts)
-  - Registra:
+  - Registers:
     - `POST /forgot-password`
     - `POST /reset-password` + `authenticateUser`
 
 - [`back/task-manager/src/auth/controllers/authController.test.ts`](../back/task-manager/src/auth/controllers/authController.test.ts)
-  - Cubre:
-    - Email invalido.
-    - Envio exitoso de recovery email.
-    - Error Supabase al pedir recovery.
-    - Password corta.
-    - Password update exitoso.
-    - Token invalido en update.
+  - Covers:
+    - Invalid email.
+    - Successful recovery email send.
+    - Supabase error in recovery request.
+    - Short password.
+    - Successful password update.
+    - Invalid token during update.
 
 ### Frontend
 
 - [`front/task-manager/src/app/pages/forgot-password/forgot-password.component.ts`](../front/task-manager/src/app/pages/forgot-password/forgot-password.component.ts)
-  - Form reactive con email.
-  - Validaciones: required + email.
-  - Estados: loading/error/success.
-  - Submit a `AuthService.requestPasswordReset`.
+  - Reactive email form.
+  - Validations: required + email.
+  - States: loading/error/success.
+  - Submit to `AuthService.requestPasswordReset`.
 
 - [`front/task-manager/src/app/pages/forgot-password/forgot-password.component.html`](../front/task-manager/src/app/pages/forgot-password/forgot-password.component.html)
-  - UI del formulario y mensajes.
-  - Boton disabled con loading.
-  - Link de regreso a login.
+  - Form and messages UI.
+  - Disabled button while loading.
+  - Link back to login.
 
 - [`front/task-manager/src/app/pages/forgot-password/forgot-password.component.css`](../front/task-manager/src/app/pages/forgot-password/forgot-password.component.css)
-  - Estilos base de tarjeta, errores y exito.
+  - Base card, error, and success styles.
 
 - [`front/task-manager/src/app/pages/reset-password/reset-password.component.ts`](../front/task-manager/src/app/pages/reset-password/reset-password.component.ts)
-  - Lee `this.route.fragment`.
-  - Parsea con `URLSearchParams`.
-  - Soporta:
+  - Reads `this.route.fragment`.
+  - Parses with `URLSearchParams`.
+  - Supports:
     - `#error=...` / `error_code=otp_expired`
     - `#access_token=...`
-  - Form reactive con:
+  - Reactive form with:
     - `password` (min 6)
     - `confirmPassword`
-    - validador custom `passwordMismatch`
-  - Submit a `AuthService.resetPassword(token, password)`.
-  - Guarda mensaje en `sessionStorage` y redirige a login.
+    - custom validator `passwordMismatch`
+  - Submit to `AuthService.resetPassword(token, password)`.
+  - Stores success message in `sessionStorage` and redirects to login.
 
 - [`front/task-manager/src/app/pages/reset-password/reset-password.component.html`](../front/task-manager/src/app/pages/reset-password/reset-password.component.html)
-  - Render condicional para error de hash vs formulario.
-  - Mensajes de error para cada campo y mismatch.
+  - Conditional render for hash errors vs form.
+  - Error messages for each field and mismatch.
 
 - [`front/task-manager/src/app/pages/reset-password/reset-password.component.css`](../front/task-manager/src/app/pages/reset-password/reset-password.component.css)
-  - Estilos visuales del flujo de reset.
+  - Reset flow visual styles.
 
-## 5. Detalle por archivo modificado (cambio puntual)
+## 5. File-by-file modified changes (specific)
 
 - [`back/task-manager/src/app.ts`](../back/task-manager/src/app.ts)
-  - Se monto `app.use("/api/auth", authRouter)`.
+  - Added `app.use("/api/auth", authRouter)`.
 
 - [`front/task-manager/src/app/core/api-routes.ts`](../front/task-manager/src/app/core/api-routes.ts)
-  - Se agregaron:
+  - Added:
     - `authForgotPassword`
     - `authResetPassword`
 
 - [`front/task-manager/src/app/auth/auth.service.ts`](../front/task-manager/src/app/auth/auth.service.ts)
-  - Nuevos metodos:
+  - New methods:
     - `requestPasswordReset(email)`
     - `resetPassword(token, newPassword)`
-  - Ambos llaman backend via `HttpClient`.
+  - Both call backend via `HttpClient`.
 
 - [`front/task-manager/src/app/auth/auth.service.spec.ts`](../front/task-manager/src/app/auth/auth.service.spec.ts)
-  - Migro a `HttpClientTestingModule`.
-  - Nuevos tests:
-    - llamada a `/api/auth/forgot-password`
-    - llamada a `/api/auth/reset-password`
-    - assert de header `Authorization: Bearer <token>`
+  - Migrated to `HttpClientTestingModule`.
+  - New tests:
+    - call to `/api/auth/forgot-password`
+    - call to `/api/auth/reset-password`
+    - assert header `Authorization: Bearer <token>`
 
 - [`front/task-manager/src/app/auth/auth.interceptor.ts`](../front/task-manager/src/app/auth/auth.interceptor.ts)
-  - Cambio clave:
-    - Si request ya trae `Authorization`, no lo sobreescribe.
-  - Esto evita reemplazar token de recovery por token de sesion.
+  - Key change:
+    - If request already has `Authorization`, do not overwrite it.
+  - Prevents replacing recovery token with session token.
 
 - [`front/task-manager/src/app/app.routes.ts`](../front/task-manager/src/app/app.routes.ts)
-  - Se agregaron rutas:
+  - Added routes:
     - `/forgot-password`
     - `/reset-password`
-  - Se agrego redirect `/login -> /auth/login`.
+  - Added redirect `/login -> /auth/login`.
 
 - [`front/task-manager/src/app/auth/login/login.ts`](../front/task-manager/src/app/auth/login/login.ts)
-  - Lee `passwordResetSuccess` de `sessionStorage`.
-  - Limpia la key despues de mostrarla.
+  - Reads `passwordResetSuccess` from `sessionStorage`.
+  - Removes key after showing message.
 
 - [`front/task-manager/src/app/auth/login/login.html`](../front/task-manager/src/app/auth/login/login.html)
-  - Se agrego link `Forgot password?`.
-  - Se agrego mensaje de exito post-reset.
+  - Added `Forgot password?` link.
+  - Added post-reset success message.
 
 - [`front/task-manager/src/app/auth/login/login.css`](../front/task-manager/src/app/auth/login/login.css)
-  - Nuevo estilo `.success-message`.
+  - New `.success-message` style.
 
-## 6. Validaciones y errores cubiertos
+## 6. Covered validations and errors
 
 ### Backend
 
-- Email mal formado.
-- Password menor a 6.
-- Token ausente/invalido/expirado.
-- Error de Supabase.
-- Excepcion no controlada.
+- Malformed email.
+- Password shorter than 6.
+- Missing/invalid/expired token.
+- Supabase error.
+- Unhandled exception.
 
 ### Frontend
 
-- Email required + formato.
-- Password required + minLength.
-- Confirm password required + mismatch.
-- Fragment con error (`#error=...`).
+- Required + format email validation.
+- Required + minLength password validation.
+- Required confirm password + mismatch.
+- Fragment with error (`#error=...`).
 - `otp_expired`.
-- Fragment sin `access_token`.
-- Errores HTTP y mensajes amigables.
+- Fragment without `access_token`.
+- HTTP errors with user-friendly messages.
 
-## 7. Configuracion requerida en Supabase
+## 7. Required Supabase configuration
 
-- `Site URL` configurada.
-- `Redirect URLs` incluyendo:
+- `Site URL` configured.
+- `Redirect URLs` including:
   - `http://localhost:4200/reset-password`
-- Para backend:
+- For backend:
   - `SUPABASE_URL`
   - `SUPABASE_PUBLISHABLE_KEY`
-- Opcional para backend:
+- Optional for backend:
   - `FRONTEND_RESET_PASSWORD_URL`
 
-## 8. Comandos ejecutados para verificar
+## 8. Commands executed for verification
 
 ### Backend
 
@@ -267,7 +267,7 @@ npm run build
 npm test -- --watch=false --include='src/app/auth/auth.service.spec.ts'
 ```
 
-## 9. Lista rapida de accesos directos
+## 9. Quick links
 
 - [`back/task-manager/src/auth/controllers/authController.ts`](../back/task-manager/src/auth/controllers/authController.ts)
 - [`back/task-manager/src/auth/routes/authRoutes.ts`](../back/task-manager/src/auth/routes/authRoutes.ts)

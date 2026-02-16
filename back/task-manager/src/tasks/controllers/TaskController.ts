@@ -12,7 +12,16 @@ type TaskStatusFilter = "all" | "pending" | "completed";
 type TaskSortBy = "createdAt" | "updatedAt" | "title";
 type TaskSortOrder = "asc" | "desc";
 
+/**
+ * HTTP controller for task endpoints.
+ *
+ * Handles validation and response mapping, while delegating data operations to
+ * `TaskService`.
+ */
 export class TaskController {
+  /**
+   * Handles `GET /api/tasks` with pagination, status filtering, and sorting.
+   */
   async getAllTasks(req: Request, res: Response): Promise<void> {
     try {
       const log = getRequestLogger(req);
@@ -82,6 +91,9 @@ export class TaskController {
     }
   }
 
+  /**
+   * Handles `GET /api/tasks/:id`.
+   */
   async getTaskById(req: Request, res: Response): Promise<void> {
     try {
       const log = getRequestLogger(req);
@@ -122,6 +134,9 @@ export class TaskController {
     }
   }
 
+  /**
+   * Handles `POST /api/tasks`.
+   */
   async createTask(req: Request, res: Response): Promise<void> {
     try {
       const log = getRequestLogger(req);
@@ -175,6 +190,9 @@ export class TaskController {
     }
   }
 
+  /**
+   * Handles `PUT /api/tasks/:id`.
+   */
   async updateTask(req: Request, res: Response): Promise<void> {
     try {
       const log = getRequestLogger(req);
@@ -238,6 +256,9 @@ export class TaskController {
     }
   }
 
+  /**
+   * Handles `PATCH /api/tasks/:id/toggle`.
+   */
   async toggleTask(req: Request, res: Response): Promise<void> {
     try {
       const log = getRequestLogger(req);
@@ -286,6 +307,9 @@ export class TaskController {
     }
   }
 
+  /**
+   * Handles `DELETE /api/tasks/:id`.
+   */
   async deleteTask(req: Request, res: Response): Promise<void> {
     try {
       const log = getRequestLogger(req);

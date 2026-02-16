@@ -4,7 +4,13 @@ import type { UpdateUserDTO } from "../model/User.js";
 import { getRequestLogger } from "../../config/logger.js";
 import type { UserResponseDTO } from "./UserControllerDTOs.js";
 
+/**
+ * HTTP controller for authenticated user profile operations.
+ */
 export class UserController {
+  /**
+   * Handles `GET /api/users/me`.
+   */
   async getProfile(req: Request, res: Response): Promise<void> {
     try {
       const log = getRequestLogger(req);
@@ -31,6 +37,9 @@ export class UserController {
     }
   }
 
+  /**
+   * Handles `PUT /api/users/me`.
+   */
   async updateProfile(req: Request, res: Response): Promise<void> {
     try {
       const log = getRequestLogger(req);
@@ -76,6 +85,9 @@ export class UserController {
     }
   }
 
+  /**
+   * Handles `DELETE /api/users/me`.
+   */
   async deleteAccount(req: Request, res: Response): Promise<void> {
     try {
       const log = getRequestLogger(req);

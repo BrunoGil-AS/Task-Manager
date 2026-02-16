@@ -8,6 +8,9 @@ import { apiRoutes } from '../core/api-routes';
 import SupabaseService from '../supabase/supabase.service';
 import { AuthUser, LoginCredentials, RegisterData } from './models/auth.model';
 
+/**
+ * Central authentication service for Supabase session lifecycle and auth APIs.
+ */
 @Injectable({
   providedIn: 'root',
 })

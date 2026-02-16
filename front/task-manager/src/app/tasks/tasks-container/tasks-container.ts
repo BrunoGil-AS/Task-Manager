@@ -5,6 +5,9 @@ import { TaskCard } from '../task-card/task-card';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import type { TaskSortBy, TaskSortOrder } from '../service/task-service';
 
+/**
+ * Container component for task listing, filtering, sorting, pagination, and creation.
+ */
 @Component({
   selector: 'app-tasks-container',
   standalone: true,
@@ -46,6 +49,9 @@ export class TasksContainer {
     completed: [false],
   });
 
+  /**
+   * Toggles create-task form visibility and resets form when closing.
+   */
   toggleCreateForm() {
     this.showCreateForm.update((value) => !value);
     if (!this.showCreateForm()) {
@@ -53,6 +59,9 @@ export class TasksContainer {
     }
   }
 
+  /**
+   * Submits the create-task form and refreshes task list on success.
+   */
   createTask() {
     if (this.createForm.invalid) {
       this.createForm.markAllAsTouched();
@@ -73,10 +82,16 @@ export class TasksContainer {
     });
   }
 
+  /**
+   * Updates local UI filter state.
+   */
   setFilter(status: 'all' | 'pending' | 'completed') {
     this.filterStatus.set(status);
   }
 
+  /**
+   * Applies backend-supported sorting and reloads the first page.
+   */
   setSort(option: 'created_desc' | 'created_asc' | 'updated_desc' | 'title_asc' | 'title_desc') {
     this.sortOption.set(option);
 
@@ -98,6 +113,9 @@ export class TasksContainer {
     this.taskService.setSort(target.sortBy, target.sortOrder);
   }
 
+  /**
+   * Navigates to next tasks page when available.
+   */
   nextPage() {
     const { page, totalPages } = this.pagination();
     if (page >= totalPages) {
@@ -106,6 +124,9 @@ export class TasksContainer {
     this.taskService.setPage(page + 1);
   }
 
+  /**
+   * Navigates to previous tasks page when available.
+   */
   previousPage() {
     const { page } = this.pagination();
     if (page <= 1) {
@@ -114,10 +135,16 @@ export class TasksContainer {
     this.taskService.setPage(page - 1);
   }
 
+  /**
+   * Navigates to an explicit page number.
+   */
   goToPage(page: number) {
     this.taskService.setPage(page);
   }
 
+  /**
+   * Performs optimistic deletion and restores snapshot on error.
+   */
   deletingTask(id: number) {
     const previousTasks = this.taskService.getTasksSnapshot();
     this.taskService.removeTaskFromStore(id);
@@ -130,6 +157,9 @@ export class TasksContainer {
     });
   }
 
+  /**
+   * Resets the task creation form to defaults.
+   */
   private resetCreateForm() {
     this.createForm.reset({
       title: '',

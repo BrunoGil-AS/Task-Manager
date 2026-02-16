@@ -2,6 +2,9 @@ import { Injectable } from '@angular/core';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { environment } from '../core/environment';
 
+/**
+ * Provides a configured Supabase client instance for frontend auth and data access.
+ */
 @Injectable({
   providedIn: 'root',
 })
@@ -21,6 +24,9 @@ export class SupabaseService {
   }
 
   // Getter público para acceder al cliente (si lo necesitas)
+  /**
+   * Returns the shared Supabase client instance.
+   */
   get client(): SupabaseClient {
     return this.supabase;
   }

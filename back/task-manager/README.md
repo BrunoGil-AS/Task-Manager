@@ -1,236 +1,125 @@
-# Task Manager Backend
+﻿# Task Manager Backend
 
-A robust and scalable RESTful API backend for a Task Manager application, built with Express.js, TypeScript, and Supabase.
+Express + TypeScript REST API for Task Manager with Supabase integration, JWT auth middleware, validation, logging, and performance/security middleware.
 
-## 📋 Project Overview
+## Features
 
-This backend service provides a comprehensive API for managing tasks with features including:
+- Authenticated task APIs (`/api/tasks`)
+- Authenticated user profile APIs (`/api/users/me`)
+- Password reset endpoints (`/api/auth/*`)
+- Request logging + response-time tracking
+- Helmet + CORS + validation + centralized error handling
+- Compression + cache headers
 
-- **Task Management**: Create, read, update, and delete tasks
-- **Task Toggling**: Toggle task completion status
-- **Database Integration**: Persistent storage using Supabase PostgreSQL
-- **Security**: Helmet for HTTP security headers, CORS support, and input validation
-- **Error Handling**: Centralized error handling with custom error classes
-- **Logging**: Request logging middleware for debugging and monitoring
-- **Authentication Ready**: JWT token support via Jose library
+## API Endpoints
 
-## 🗂️ Project Structure
+### Health
 
-```plain
-src/
-├── app.ts                 # Express application setup and middleware configuration
-├── index.ts              # Server entry point
-├── config/
-│   └── supabaseClient.ts # Supabase client initialization
-├── error/
-│   ├── ApiError.ts       # Custom API error class
-│   └── errorHandler.ts   # Centralized error handling middleware
-├── middleware/
-│   ├── auth.ts           # Authentication middleware
-│   └── loggingMiddleware.ts # Request logging middleware
-├── tasks/
-│   ├── controllers/
-│   │   └── TaskController.ts # Business logic for task operations
-│   ├── data/
-│   │   └── tasks.ts      # Database query functions
-│   ├── middleware/
-│   │   └── validateBody.ts # Request validation middleware
-│   ├── models/
-│   │   └── Task.ts       # TypeScript Task model
-│   ├── routes/
-│   │   └── router.ts     # Task API routes
-│   ├── schemas/
-│   │   └── TaskSchema.ts # Zod validation schemas
-│   └── services/
-│       └── taskService.ts # Business logic layer
-├── types/
-│   ├── database.types.ts # Database type definitions
-│   └── supabase.ts       # Supabase type definitions
-└── users/
-    ├── data/
-    │   └── users.ts      # User database functions
-    ├── model/
-    │   └── User.ts       # TypeScript User model
-    └── schemas/
-        └── UserSchema.ts # User validation schemas
-```
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- Node.js (v18 or higher)
-- npm or yarn
-- Supabase account and project setup
-
-### Installation
-
-1. **Clone the repository**
-
-   ```bash
-   git clone <repository-url>
-   cd back/task-manager
-   ```
-
-2. **Install dependencies**
-
-   ```bash
-   npm install
-   ```
-
-3. **Configure environment variables**
-
-   Create a `.env` file in the `config/` directory:
-
-   ```env
-   PORT=3000
-   SUPABASE_URL=your_supabase_url
-   SUPABASE_ANON_KEY=your_anon_key
-   SUPABASE_SERVICE_KEY=your_service_key
-   ```
-
-4. **Build the project**
-
-   ```bash
-   npm run build
-   ```
-
-5. **Start the server**
-
-   ```bash
-   npm run dev
-   ```
-
-## 📦 Available Scripts
-
-| Script          | Description                                      |
-| --------------- | ------------------------------------------------ |
-| `npm run build` | Compile TypeScript to JavaScript                 |
-| `npm run watch` | Watch for TypeScript changes and recompile       |
-| `npm run exec`  | Execute the compiled JavaScript                  |
-| `npm run fast`  | Build and run in one command                     |
-| `npm run dev`   | Run development server with hot reload (nodemon) |
-
-## 🔌 API Endpoints
-
-All task endpoints are prefixed with `/api/tasks`
+| Method | Path      | Auth | Description  |
+| ------ | --------- | ---- | ------------ |
+| GET    | `/health` | No   | Health check |
 
 ### Tasks
 
-| Method | Endpoint                | Description                   |
-| ------ | ----------------------- | ----------------------------- |
-| GET    | `/api/tasks`            | Get all tasks                 |
-| GET    | `/api/tasks/:id`        | Get task by ID                |
-| POST   | `/api/tasks`            | Create a new task             |
-| PUT    | `/api/tasks/:id`        | Update a task                 |
-| PATCH  | `/api/tasks/:id/toggle` | Toggle task completion status |
-| DELETE | `/api/tasks/:id`        | Delete a task                 |
+| Method | Path                    | Auth | Description             |
+| ------ | ----------------------- | ---- | ----------------------- |
+| GET    | `/api/tasks`            | Yes  | List current user tasks |
+| POST   | `/api/tasks`            | Yes  | Create task             |
+| GET    | `/api/tasks/:id`        | Yes  | Get task by id          |
+| PUT    | `/api/tasks/:id`        | Yes  | Update task             |
+| PATCH  | `/api/tasks/:id/toggle` | Yes  | Toggle completed        |
+| DELETE | `/api/tasks/:id`        | Yes  | Delete task             |
 
-### Health Check
+### Users
 
-| Method | Endpoint  | Description         |
-| ------ | --------- | ------------------- |
-| GET    | `/health` | Server health check |
+| Method | Path            | Auth | Description            |
+| ------ | --------------- | ---- | ---------------------- |
+| GET    | `/api/users/me` | Yes  | Get current profile    |
+| PUT    | `/api/users/me` | Yes  | Update current profile |
+| DELETE | `/api/users/me` | Yes  | Delete/disable account |
 
-## 🛡️ Security Features
+### Auth
 
-- **Helmet**: Protects against common web vulnerabilities
-- **CORS**: Cross-Origin Resource Sharing enabled for frontend integration
-- **Validation**: Request body validation using Zod schemas
-- **Error Handling**: Centralized error handling prevents information leakage
-- **JWT Support**: Ready for token-based authentication
+| Method | Path                        | Auth               | Description      |
+| ------ | --------------------------- | ------------------ | ---------------- |
+| POST   | `/api/auth/forgot-password` | No                 | Send reset email |
+| POST   | `/api/auth/reset-password`  | Yes (Bearer token) | Update password  |
 
-## 📚 Key Dependencies
+## Environment Variables
 
-| Package               | Version | Purpose               |
-| --------------------- | ------- | --------------------- |
-| express               | ^5.2.1  | Web framework         |
-| @supabase/supabase-js | ^2.93.2 | Database client       |
-| typescript            | ^5.9.3  | Type safety           |
-| zod                   | ^4.3.6  | Schema validation     |
-| helmet                | ^8.1.0  | Security headers      |
-| cors                  | ^2.8.6  | CORS support          |
-| jose                  | ^6.1.3  | JWT handling          |
-| express-validator     | ^7.3.1  | Additional validation |
-| dotenv                | ^17.2.3 | Environment variables |
-
-## 🔧 Development Tools
-
-| Package        | Version | Purpose                        |
-| -------------- | ------- | ------------------------------ |
-| typescript     | ^5.9.3  | Type checking                  |
-| @types/node    | ^25.1.0 | Node.js type definitions       |
-| @types/express | ^5.0.6  | Express type definitions       |
-| @types/cors    | ^2.8.19 | CORS type definitions          |
-| nodemon        | ^3.1.11 | Auto-reload during development |
-| ts-node        | ^10.9.2 | Run TypeScript directly        |
-
-## 🏗️ Architecture Overview
-
-### Layered Architecture
-
-The backend follows a clean layered architecture:
-
-- **Routes**: Define API endpoints
-- **Controllers**: Handle HTTP requests and responses
-- **Services**: Business logic and validation
-- **Data Access**: Database queries and operations
-- **Models**: TypeScript type definitions
-- **Middleware**: Cross-cutting concerns (auth, logging, validation)
-
-### Error Handling
-
-Custom `ApiError` class for consistent error responses:
-
-```typescript
-new ApiError(statusCode, message, errors?: Record<string, string>)
-```
-
-## 🔄 Request Flow
-
-1. Request arrives at Express server
-2. Logging middleware records the request
-3. Helmet applies security headers
-4. CORS middleware processes the request
-5. Route matches endpoint
-6. Validation middleware validates request body
-7. Controller processes the request
-8. Service executes business logic
-9. Data access layer queries the database
-10. Response is returned through error handler (if error) or directly
-
-## 📝 Environment Configuration
-
-The project uses `dotenv` for environment variable management. Create a `.env` file:
+Create `back/task-manager/.env`:
 
 ```env
 PORT=3000
+NODE_ENV=development
+CORS_ORIGIN=http://localhost:4200,http://127.0.0.1:4200
 SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_ANON_KEY=your_anon_key_here
-SUPABASE_SERVICE_KEY=your_service_key_here
+SUPABASE_PUBLISHABLE_KEY=sb_publishable_YOUR_KEY
+FRONTEND_RESET_PASSWORD_URL=http://localhost:4200/reset-password
+LOG_LEVEL=info
+LOG_PRETTY=true
+SLOW_QUERY_MS=200
 ```
 
-## 🚀 Deployment
+## Setup
 
-The backend can be deployed to various platforms:
+```bash
+cd back/task-manager
+npm install
+npm run dev
+```
 
-- **Vercel**: Supports Node.js
-- **Heroku**: Full support with buildpack
-- **Railway**: Container-based deployment
-- **Supabase Edge Functions**: Serverless alternative
-- **Docker**: Container deployment
+Backend starts at `http://localhost:3000`.
 
-## 📖 Additional Resources
+## Usage Examples
 
-- [Express.js Documentation](https://expressjs.com/)
-- [TypeScript Documentation](https://www.typescriptlang.org/)
-- [Supabase Documentation](https://supabase.com/docs)
-- [Zod Documentation](https://zod.dev/)
+Health check:
 
-## 👤 Author
+```bash
+curl http://localhost:3000/health
+```
 
-Bruno Gil R.
+Forgot password:
 
-## 📄 License
+```bash
+curl -X POST http://localhost:3000/api/auth/forgot-password \
+  -H "Content-Type: application/json" \
+  -d '{"email":"you@example.com"}'
+```
+
+Get profile (requires JWT):
+
+```bash
+curl http://localhost:3000/api/users/me \
+  -H "Authorization: Bearer <access_token>"
+```
+
+Create task (requires JWT):
+
+```bash
+curl -X POST http://localhost:3000/api/tasks \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <access_token>" \
+  -d '{"title":"Write docs","description":"Update project README files"}'
+```
+
+## Scripts
+
+| Command         | Description             |
+| --------------- | ----------------------- |
+| `npm run build` | Compile TypeScript      |
+| `npm run watch` | Compile on file changes |
+| `npm run exec`  | Run compiled JS         |
+| `npm run fast`  | Build and execute       |
+| `npm run dev`   | Nodemon dev mode        |
+| `npm test`      | Run Jest tests          |
+
+## Related Docs
+
+- Root README: `../../README.md`
+- Frontend README: `../../front/task-manager/README.md`
+- Testing guide: `../../docs/TESTING.md`
+
+## License
 
 ISC

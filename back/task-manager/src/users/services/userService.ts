@@ -3,7 +3,13 @@ import type { User } from "../../types/supabase.js";
 import type { UpdateUserDTO, CreateUserDTO } from "../model/User.js";
 import { logger } from "../../config/logger.js";
 
+/**
+ * Service layer for user profile persistence and account state management.
+ */
 export class UserService {
+  /**
+   * Fetches the current authenticated user's profile record.
+   */
   async getUserInfo(userId: string, accessToken: string): Promise<User> {
     const log = logger.child({ userId, scope: "users.getProfile" });
     const supabase = createAuthenticatedClient(accessToken);
@@ -23,6 +29,9 @@ export class UserService {
     return data;
   }
 
+  /**
+   * Creates a new user profile record.
+   */
   async createUser(
     userData: CreateUserDTO,
     accessToken: string,
@@ -51,6 +60,9 @@ export class UserService {
     return data;
   }
 
+  /**
+   * Updates profile fields for an existing user.
+   */
   async updateUser(
     userId: string,
     updateData: UpdateUserDTO,
@@ -79,6 +91,9 @@ export class UserService {
     return data;
   }
 
+  /**
+   * Soft-disables the user account by setting `enabled = false`.
+   */
   async disableUser(userId: string, accessToken: string): Promise<User> {
     const log = logger.child({ userId, scope: "users.disable" });
     const supabase = createAuthenticatedClient(accessToken);
@@ -103,6 +118,9 @@ export class UserService {
     return data;
   }
 
+  /**
+   * Deletes a user account through a soft-disable operation.
+   */
   async deleteUser(userId: string, accessToken: string): Promise<User> {
     return this.disableUser(userId, accessToken);
   }

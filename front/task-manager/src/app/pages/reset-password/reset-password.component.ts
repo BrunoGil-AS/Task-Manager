@@ -4,6 +4,9 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../auth/auth.service';
 
+/**
+ * Password reset component for validating token fragments and updating password.
+ */
 @Component({
   selector: 'app-reset-password',
   standalone: true,
@@ -34,16 +37,25 @@ export class ResetPasswordComponent implements OnInit, OnDestroy {
     },
   );
 
+  /**
+   * Subscribes to URL fragment updates to extract recovery tokens.
+   */
   ngOnInit() {
     this.fragmentSubscription = this.route.fragment.subscribe((fragment) => {
       this.extractTokenFromFragment(fragment);
     });
   }
 
+  /**
+   * Cleans fragment subscription.
+   */
   ngOnDestroy() {
     this.fragmentSubscription?.unsubscribe();
   }
 
+  /**
+   * Submits the new password using the recovery token.
+   */
   onSubmit() {
     if (!this.recoveryToken) {
       this.apiErrorMessage = 'Invalid or expired reset link';
@@ -80,14 +92,23 @@ export class ResetPasswordComponent implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Exposes password control for template validation state.
+   */
   get passwordControl() {
     return this.resetPasswordForm.get('password');
   }
 
+  /**
+   * Exposes confirm-password control for template validation state.
+   */
   get confirmPasswordControl() {
     return this.resetPasswordForm.get('confirmPassword');
   }
 
+  /**
+   * Group validator ensuring password and confirmation match.
+   */
   private passwordMatchValidator(group: {
     get(path: string): { value: unknown } | null;
   }): ValidationErrors | null {
@@ -101,6 +122,9 @@ export class ResetPasswordComponent implements OnInit, OnDestroy {
     return password === confirmPassword ? null : { passwordMismatch: true };
   }
 
+  /**
+   * Reads and validates recovery token from URL hash fragment.
+   */
   private extractTokenFromFragment(fragment: string | null) {
     this.recoveryToken = null;
     this.hashErrorMessage = '';
@@ -127,6 +151,9 @@ export class ResetPasswordComponent implements OnInit, OnDestroy {
     this.recoveryToken = token;
   }
 
+  /**
+   * Maps provider fragment errors to user-facing messages.
+   */
   private mapFragmentError(params: URLSearchParams): string {
     const code = params.get('error_code');
     const description = decodeURIComponent(params.get('error_description') ?? '');
@@ -142,6 +169,9 @@ export class ResetPasswordComponent implements OnInit, OnDestroy {
     return 'Invalid or expired reset link';
   }
 
+  /**
+   * Normalizes API/client errors to a displayable message.
+   */
   private getErrorMessage(error: unknown): string {
     if (error && typeof error === 'object' && 'error' in error) {
       const apiError = error as { error?: { error?: string; message?: string } };

@@ -1,256 +1,344 @@
-# Estructura HTML y CSS - Task Manager
+# Frontend Components
 
-## 📋 Resumen de Componentes Generados
+Updated documentation for Angular components in `front/task-manager/src/app`.
 
-Se han generado **HTML y CSS** para 5 componentes principales manteniendo coherencia visual y reutilizando los estilos globales del sistema de diseño.
+## Summary
 
----
+| Component | Selector | File | Role |
+| --- | --- | --- | --- |
+| App | `app-root` | `src/app/app.ts` | Global shell (navbar, router outlet, errors, footer). |
+| Navbar | `app-navbar` | `src/app/UI/navbar/navbar.ts` | Top navigation and current user access. |
+| Footer | `app-footer` | `src/app/UI/footer/footer.ts` | Global footer. |
+| GlobalError | `app-global-error` | `src/app/UI/global-error/global-error.ts` | Renders global errors from `ErrorService`. |
+| Home | `app-home` | `src/app/home/home.ts` | Dashboard with task metrics. |
+| TasksContainer | `app-tasks-container` | `src/app/tasks/tasks-container/tasks-container.ts` | Main tasks view (list, filters, sorting, pagination, create). |
+| Sidebar | `app-sidebar` | `src/app/UI/sidebar/sidebar.ts` | Task filters and secondary navigation. |
+| TaskCard | `app-task-card` | `src/app/tasks/task-card/task-card.ts` | Single task card. |
+| TaskDetails | `app-task-details` | `src/app/tasks/task-details/task-details.ts` | Task detail view, toggle, and edit. |
+| TaskForm | `app-task-form` | `src/app/tasks/task-form/task-form.ts` | Reactive form for task editing. |
+| LoginComponent | `app-login` | `src/app/auth/login/login.ts` | Sign in page. |
+| RegisterComponent | `app-register` | `src/app/auth/register/register.ts` | User registration page. |
+| ForgotPasswordComponent | `app-forgot-password` | `src/app/pages/forgot-password/forgot-password.component.ts` | Password reset request by email. |
+| ResetPasswordComponent | `app-reset-password` | `src/app/pages/reset-password/reset-password.component.ts` | Password change using recovery token. |
+| UserProfile | `app-user-profile` | `src/app/user/user-profile/user-profile.ts` | User profile container. |
+| UserProfileSummary | `app-user-profile-summary` | `src/app/user/profile-summary/profile-summary.ts` | Read-only user summary. |
+| UserProfileForm | `app-user-profile-form` | `src/app/user/profile-form/profile-form.ts` | Profile data editing form. |
+| UserProfileSecurity | `app-user-profile-security` | `src/app/user/profile-security/profile-security.ts` | Profile security visual block. |
 
-## 🏠 Home Component
+## Component Interaction
 
-### Funcionalidad
+### Main hierarchy
 
-- Página principal con resumen de tareas
-- Muestra métricas: completadas, en progreso, total
-- Barra de progreso visual
-- Botón de acceso a la sección de tareas
+```mermaid
+flowchart TD
+    App --> Navbar
+    App --> GlobalError
+    App --> RouterOutlet
+    App --> Footer
 
-### Características de Diseño
+    RouterOutlet --> Home
+    RouterOutlet --> TasksContainer
+    RouterOutlet --> TaskDetails
+    RouterOutlet --> LoginComponent
+    RouterOutlet --> RegisterComponent
+    RouterOutlet --> ForgotPasswordComponent
+    RouterOutlet --> ResetPasswordComponent
+    RouterOutlet --> UserProfile
 
-- Grid responsivo de 3 columnas (desktop)
-- Tarjetas con iconos y valores destacados
-- Gradiente de fondo suave
-- Colores específicos por tipo de métrica (éxito, advertencia, info)
+    TasksContainer --> Sidebar
+    TasksContainer --> TaskCard
+    TaskDetails --> Sidebar
+    TaskDetails --> TaskForm
 
----
-
-## 📌 TasksContainer Component
-
-### Funcionalidad
-
-- Vista principal de todas las tareas
-- Integra Sidebar + Listado de tareas
-- Grilla de TaskCards
-
-### Estructura
-
-```
-tasks-container
-├── app-sidebar
-└── tasks-content
-    ├── tasks-header (título y contador)
-    └── task-cards-grid (lista de cards)
-```
-
-### Características de Diseño
-
-- Flexbox responsivo
-- Grilla automática de cards (min 300px)
-- Empty state cuando no hay tareas
-- Sidebar fijo en desktop, expandible en mobile
-
----
-
-## 🎯 TaskCard Component
-
-### Funcionalidad
-
-- Representa una tarea individual
-- Muestra: título, descripción, estado, fecha
-- Botón "Detalles" para navegar
-
-### Características de Diseño
-
-- Tarjeta con sombra y hover effect
-- Badge de estado (coloreado según completado/pendiente)
-- Descripción truncada a 2 líneas
-- Transiciones suaves en hover
-
----
-
-## 📂 Sidebar Component
-
-### Funcionalidad Dual
-
-#### En `/tasks`
-
-- Filtros por estado (Todas, En progreso, Completadas)
-- Muestra contador para cada filtro
-- Botones filtro activo/inactivo
-
-#### En `/tasks/details/:id`
-
-- Lista scrollable de todas las tareas
-- Cada tarea es clickeable
-- Navega entre tareas rápidamente
-
-### Características de Diseño
-
-- Diseño vertical modular
-- Filtros con iconos de color (⏳ amarillo, ✓ verde)
-- Lista de tareas con truncado de texto
-- Desaparece en mobile (solo filtros)
-
----
-
-## 🔍 TaskDetails Component
-
-### Funcionalidad
-
-- Vista detallada de una tarea
-- Muestra todos los campos del modelo
-- Botón "Marcar como completada" (toggle)
-- Botón "Editar" que abre el formulario
-- Sidebar con lista de tareas
-
-### Características de Diseño
-
-- Layout similar a TaskContainer (con sidebar)
-- Información organizada en secciones
-- Badges de estado prominente
-- Grid de metadatos (fechas)
-- Botones de acción al pie
-- Back button para volver
-
----
-
-## ✏️ TaskForm Component
-
-### Funcionalidad
-
-- Formulario de edición (NO creación)
-- Campos editables: título, descripción, estado
-- Campos read-only: id, fechas
-- Botones: Cancelar, Guardar cambios
-- Sidebar con lista de tareas
-
-### Características de Diseño
-
-- Formulario bien estructura con grupos de campos
-- Inputs con estados: normal, focus, disabled
-- Textarea para descripción larga
-- Checkbox para estado completado
-- Sección de fechas en grid
-- Label con asterisco para campos requeridos
-
----
-
-## 🎨 Sistema de Diseño Reutilizado
-
-### Variables CSS Utilizadas
-
-- **Colores**: primary, secondary, success, warning, error, neutral
-- **Espaciado**: xs, sm, md, lg, xl, 2xl, 3xl
-- **Tipografía**: font-sizes, font-weights
-- **Bordes**: radius-sm/md/lg/xl, full
-- **Sombras**: shadow-sm/md/lg/xl
-- **Transiciones**: fast, base, slow
-- **Touch targets**: 44px (mín. recomendado)
-
-### Paleta de Colores
-
-```
-Primary:    #4f46e5 (Indigo)
-Secondary:  #06b6d4 (Cyan)
-Success:    #10b981 (Green)
-Warning:    #f59e0b (Amber)
-Error:      #ef4444 (Red)
-Info:       #3b82f6 (Blue)
+    UserProfile --> UserProfileSummary
+    UserProfile --> UserProfileForm
+    UserProfile --> UserProfileSecurity
 ```
 
----
+### Task flow (list/create/edit/delete)
 
-## 📱 Responsividad
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant TC as TasksContainer
+    participant TS as TaskService
+    participant API as Backend API
+    participant TD as TaskDetails
+    participant TF as TaskForm
 
-### Breakpoints Implementados
+    U->>TC: Open /tasks
+    TC->>TS: loadTasks()
+    TS->>API: GET /api/tasks
+    API-->>TS: TaskListResponse
+    TS-->>TC: tasks signal
 
-- **Mobile**: < 768px
-- **Tablet**: 768px - 1024px
-- **Desktop**: ≥ 768px
+    U->>TC: Create task
+    TC->>TS: addTask(payload)
+    TS->>API: POST /api/tasks
+    API-->>TS: TaskResponse
+    TS-->>TC: refreshTasks(true)
 
-### Ajustes Principales
+    U->>TD: Open /tasks/details/:id
+    TD->>TS: getTask(id)
+    TS->>API: GET /api/tasks/:id
+    API-->>TS: TaskResponse
 
-- **Mobile**: Layouts en columna, grid simple (1 columna)
-- **Tablet**: Grid de 2 columnas para stats
-- **Desktop**: Layouts con sidebar, grid flexible
+    U->>TF: Save changes
+    TF-->>TD: onSave(updatedTask)
+    TD->>TS: updateTask(id, task)
+    TS->>API: PUT /api/tasks/:id
 
----
-
-## 🎯 Patrones CSS Implementados
-
-### BEM (Block Element Modifier)
-
-```css
-.task-card (Block)
-.task-card__title (Element)
-.task-card--completed (Modifier)
+    U->>TD: Delete
+    TD->>TS: deleteTask(id)
+    TS->>API: DELETE /api/tasks/:id
 ```
 
-### Utilidades
+### Authentication flow and guards
 
-- Clases de utilidad para botones (.btn, .btn-primary)
-- Estados hover/active/focus implementados
-- Focus visible para accesibilidad
+```mermaid
+flowchart LR
+    Login[Login/Register] --> AuthService
+    AuthService --> SupabaseSDK[Supabase Auth SDK]
+    SupabaseSDK --> Session[(Session)]
 
-### Animaciones
+    Session --> AuthInterceptor
+    AuthInterceptor --> BackendAPI[Backend API]
 
-- Transiciones suaves en hover
-- Transform ligero (translateY) en cards
-- Scale en botones activos
+    AuthService --> AuthGuard
+    AuthService --> GuestGuard
 
----
-
-## 📝 Notas Importantes
-
-1. **No se incluyó lógica TypeScript**: Solo HTML y CSS
-2. **Estilos modularizados**: CSS separado por componente
-3. **Sin sobrescrituras globales**: Se respetan estilos de `app.css` y `styles.css`
-4. **Accesibilidad**:
-   - Labels asociados a inputs
-   - Botones con aria-labels donde corresponde
-   - Altura mínima de touch targets
-   - Suficiente contraste de colores
-
-5. **Características esperadas en TypeScript** (para después):
-   - Signals para reactividad (`completedCount()`, `taskTitle()`, etc.)
-   - Inyección de servicios
-   - Navegación con Router
-   - Métodos: `filterByStatus()`, `goToDetails()`, `toggleComplete()`, `saveChanges()`, etc.
-
----
-
-## 📦 Archivos Generados/Modificados
-
-```
-src/app/
-├── home/
-│   ├── home.html        ✅ Actualizado
-│   └── home.css         ✅ Actualizado
-├── tasks/
-│   ├── tasks-container/
-│   │   ├── tasks-container.html    ✅ Actualizado
-│   │   └── tasks-container.css     ✅ Actualizado
-│   ├── task-card/
-│   │   ├── task-card.html    ✅ Actualizado
-│   │   └── task-card.css     ✅ Actualizado
-│   ├── task-details/
-│   │   ├── task-details.html ✅ Actualizado
-│   │   └── task-details.css  ✅ Actualizado
-│   └── task-form/
-│       ├── task-form.html    ✅ Actualizado
-│       └── task-form.css     ✅ Actualizado
-└── UI/
-    └── sidebar/
-        ├── sidebar.html      ✅ Actualizado
-        └── sidebar.css       ✅ Actualizado
+    AuthGuard --> ProtectedRoutes[/home,/tasks,/me]
+    GuestGuard --> AuthRoutes[/auth/login,/auth/register]
 ```
 
----
+## Component APIs
 
-## 🚀 Próximos Pasos (TypeScript)
+### App (`src/app/app.ts`)
 
-1. Implementar Signals en componentes
-2. Conectar con TaskService para datos
-3. Implementar navegación y filtros
-4. Validar formularios
-5. Agregar lógica de edición/guardado
+- Inputs: none
+- Outputs: none
+- State:
+  - `title: Signal<string>`
+- Public methods: none
+
+### Navbar (`src/app/UI/navbar/navbar.ts`)
+
+- Inputs: none
+- Outputs: none
+- State:
+  - `currentUser$`
+- Methods:
+  - `navigate(path: string): void`
+
+### Footer (`src/app/UI/footer/footer.ts`)
+
+- Inputs: none
+- Outputs: none
+- Public methods: none
+
+### GlobalError (`src/app/UI/global-error/global-error.ts`)
+
+- Inputs: none
+- Outputs: none
+- State:
+  - `errors` (readonly signal from `ErrorService`)
+- Methods:
+  - `dismiss(id: string): void`
+  - `trackById(_index: number, item: AppErrorItem): string`
+
+### Home (`src/app/home/home.ts`)
+
+- Inputs: none
+- Outputs: none
+- Methods:
+  - `completedCount(): number`
+  - `inProgressCount(): number`
+  - `totalCount(): number`
+  - `getProgressPercentage(): number`
+  - `navigateToTasks(): void`
+
+### TasksContainer (`src/app/tasks/tasks-container/tasks-container.ts`)
+
+- Inputs: none (page component)
+- Outputs: none
+- State:
+  - `tasks`, `loading`, `pagination` (signals from `TaskService`)
+  - `filterStatus`, `sortOption`, `showCreateForm` (local signals)
+  - `filteredTasks` (computed)
+  - `createForm` (reactive form)
+- Methods:
+  - `toggleCreateForm(): void`
+  - `createTask(): void`
+  - `setFilter(status: 'all' | 'pending' | 'completed'): void`
+  - `setSort(option: 'created_desc' | 'created_asc' | 'updated_desc' | 'title_asc' | 'title_desc'): void`
+  - `nextPage(): void`
+  - `previousPage(): void`
+  - `goToPage(page: number): void`
+  - `deletingTask(id: number): void`
+
+### Sidebar (`src/app/UI/sidebar/sidebar.ts`)
+
+- Inputs:
+  - `mode: string` (required)
+- Outputs:
+  - `statusChange: 'all' | 'pending' | 'completed'`
+- State:
+  - `isOpen`, `selectedStatus`
+  - `tasks`
+  - `totalCount`, `pendingCount`, `completedCount` (computed)
+- Methods:
+  - `filterByStatus(status: 'all' | 'pending' | 'completed'): void`
+  - `toggleSidebar(): void`
+  - `closeSidebar(): void`
+  - `navigateToTask(id: number): void`
+
+### TaskCard (`src/app/tasks/task-card/task-card.ts`)
+
+- Inputs:
+  - `task: Task | null`
+  - `loading: boolean`
+- Outputs:
+  - `delete_: number`
+- Methods:
+  - `isCompleted(): boolean`
+  - `taskDate(): string | undefined`
+  - `taskDescription(): string`
+  - `taskTitle(): string`
+  - `goToDetails(): void`
+  - `delete(id: number | null | undefined): void`
+
+### TaskDetails (`src/app/tasks/task-details/task-details.ts`)
+
+- Inputs: none (page component)
+- Outputs: none
+- State:
+  - `showForm`, `loading` (signals)
+  - `task` (`toSignal` from route param + `TaskService`)
+- Methods:
+  - `goBack(): void`
+  - `toggleComplete(): void`
+  - `deleteTask(): void`
+  - `isCompleted(): boolean`
+  - `createdAt(): string`
+  - `updatedAt(): string`
+  - `taskDescription(): string | undefined`
+  - `taskTitle(): string`
+  - `goToDetails(): void`
+  - `editTask(): void`
+  - `updateTask(task: Task): void`
+
+### TaskForm (`src/app/tasks/task-form/task-form.ts`)
+
+- Inputs:
+  - `task: Task` (required)
+  - `showForm: boolean` (required model)
+  - `loading: boolean`
+- Outputs:
+  - `onSave: Task`
+- State:
+  - `form: FormGroup`
+- Methods:
+  - `cancel(): void`
+  - `saveChanges(): void`
+
+### LoginComponent (`src/app/auth/login/login.ts`)
+
+- Inputs: none
+- Outputs: none
+- State:
+  - `loginForm`, `loading$`, `errorMessage`, `successMessage`
+- Methods:
+  - `onSubmit(): void`
+  - `email` (getter)
+  - `password` (getter)
+
+### RegisterComponent (`src/app/auth/register/register.ts`)
+
+- Inputs: none
+- Outputs: none
+- State:
+  - `registerForm`, `loading$`, `errorMessage`, `successMessage`
+- Methods:
+  - `onSubmit(): void`
+  - `name` (getter)
+  - `email` (getter)
+  - `password` (getter)
+  - `confirmPassword` (getter)
+
+### ForgotPasswordComponent (`src/app/pages/forgot-password/forgot-password.component.ts`)
+
+- Inputs: none
+- Outputs: none
+- State:
+  - `forgotPasswordForm`, `loading$`, `errorMessage`, `successMessage`
+- Methods:
+  - `onSubmit(): void`
+  - `emailControl` (getter)
+
+### ResetPasswordComponent (`src/app/pages/reset-password/reset-password.component.ts`)
+
+- Inputs: none
+- Outputs: none
+- State:
+  - `recoveryToken`, `hashErrorMessage`, `apiErrorMessage`, `successMessage`, `isSubmitting`
+  - `resetPasswordForm`
+- Methods:
+  - `ngOnInit(): void`
+  - `ngOnDestroy(): void`
+  - `onSubmit(): void`
+  - `passwordControl` (getter)
+  - `confirmPasswordControl` (getter)
+
+### UserProfile (`src/app/user/user-profile/user-profile.ts`)
+
+- Inputs: none
+- Outputs: none
+- State:
+  - `user$`
+- Methods:
+  - `handleSave(payload: ProfileFormValue): void`
+  - `handleCancel(): void`
+  - `logout(): void`
+
+### UserProfileSummary (`src/app/user/profile-summary/profile-summary.ts`)
+
+- Inputs:
+  - `user: AuthUser` (required)
+- Outputs: none
+- Public methods: none
+
+### UserProfileForm (`src/app/user/profile-form/profile-form.ts`)
+
+- Inputs:
+  - `user: AuthUser` (required)
+- Outputs:
+  - `onSave: ProfileFormValue`
+  - `onCancel: void`
+- State:
+  - `form: FormGroup`
+- Methods:
+  - `cancel(): void`
+  - `saveChanges(): void`
+
+### UserProfileSecurity (`src/app/user/profile-security/profile-security.ts`)
+
+- Inputs: none
+- Outputs: none
+- Public methods: none
+
+## Key Dependencies
+
+- `TaskService`: task state/operations (`tasks`, `pagination`, CRUD).
+- `AuthService`: session, login/register/logout, password reset.
+- `UserService`: profile read/update.
+- `ErrorService`: global error notifications.
+- Guards:
+  - `authGuard` for protected routes.
+  - `guestGuard` for authentication routes.
+
+## Quick Usage (integration)
+
+1. `TasksContainer` uses `Sidebar` (filters) + `TaskCard` (item actions).
+2. `TaskDetails` uses `TaskForm` for inline editing.
+3. `UserProfile` composes `UserProfileSummary`, `UserProfileForm`, `UserProfileSecurity`.
+4. `GlobalError` renders notifications from `httpErrorInterceptor`.

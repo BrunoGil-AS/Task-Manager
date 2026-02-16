@@ -4,6 +4,9 @@ import { Navbar } from './UI/navbar/navbar';
 import { Footer } from './UI/footer/footer';
 import { GlobalError } from './UI/global-error/global-error';
 
+/**
+ * Root application shell that composes global layout and routed views.
+ */
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet, Navbar, Footer, GlobalError],

@@ -7,9 +7,12 @@ type TaskStatusFilter = "all" | "pending" | "completed";
 type TaskSortBy = "createdAt" | "updatedAt" | "title";
 type TaskSortOrder = "asc" | "desc";
 
+/**
+ * Service layer for authenticated task CRUD and query operations.
+ */
 export class TaskService {
   /**
-   * Obtener todas las tareas de un usuario
+   * Get all tasks for a user.
    */
   async getTasksByUser(
     userId: string,
@@ -113,7 +116,7 @@ export class TaskService {
   }
 
   /**
-   * Obtener una tarea por ID
+   * Get a task by ID.
    */
   async getTaskById(
     taskId: number,
@@ -136,7 +139,7 @@ export class TaskService {
     if (error) {
       if (error.code === "PGRST116") {
         log.debug({ durationMs }, "supabase.not_found");
-        return null; // No encontrado
+        return null; // Not found
       }
       log.error(
         { code: error.code, message: error.message, durationMs },
@@ -154,7 +157,7 @@ export class TaskService {
   }
 
   /**
-   * Crear una nueva tarea
+   * Create a new task.
    */
   async createTask(
     userId: string,
@@ -193,7 +196,7 @@ export class TaskService {
   }
 
   /**
-   * Actualizar una tarea
+   * Update a task.
    */
   async updateTask(
     taskId: number,
@@ -235,7 +238,7 @@ export class TaskService {
   }
 
   /**
-   * Eliminar una tarea
+   * Delete a task.
    */
   async deleteTask(
     taskId: number,
@@ -269,7 +272,7 @@ export class TaskService {
   }
 
   /**
-   * Alternar estado completado
+   * Toggle completion status.
    */
   async toggleTaskCompletion(
     taskId: number,
@@ -277,14 +280,14 @@ export class TaskService {
     accessToken: string,
   ): Promise<Task | null> {
     const log = logger.child({ userId, taskId, scope: "tasks.toggle" });
-    // Primero obtenemos la tarea
+    // First, fetch the current task.
     const task = await this.getTaskById(taskId, userId, accessToken);
     if (!task) {
       log.debug("task.not_found");
       return null;
     }
 
-    // Alternamos el estado
+    // Toggle the completion flag.
     return this.updateTask(
       taskId,
       userId,

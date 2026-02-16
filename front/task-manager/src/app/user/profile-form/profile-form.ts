@@ -7,6 +7,9 @@ export interface ProfileFormValue {
   team?: string;
 }
 
+/**
+ * Editable user profile form component.
+ */
 @Component({
   selector: 'app-user-profile-form',
   imports: [ReactiveFormsModule],
@@ -40,11 +43,17 @@ export class UserProfileForm {
     });
   }
 
+  /**
+   * Cancels edit session and clears local form state.
+   */
   cancel(): void {
     this.onCancel.emit();
     this.form.reset();
   }
 
+  /**
+   * Validates and emits profile changes.
+   */
   saveChanges(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();

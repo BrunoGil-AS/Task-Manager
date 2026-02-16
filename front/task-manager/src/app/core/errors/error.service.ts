@@ -11,6 +11,9 @@ export interface AppErrorItem {
   time: string;
 }
 
+/**
+ * Global in-memory error notification service for UI toasts/panels.
+ */
 @Injectable({
   providedIn: 'root',
 })
@@ -18,6 +21,9 @@ export class ErrorService {
   private readonly errorItems = signal<AppErrorItem[]>([]);
   readonly errors = this.errorItems.asReadonly();
 
+  /**
+   * Adds a new error/notice item and optionally auto-dismisses it.
+   */
   notify(
     message: string,
     options?: {
@@ -51,14 +57,23 @@ export class ErrorService {
     return id;
   }
 
+  /**
+   * Removes an error item by id.
+   */
   dismiss(id: string) {
     this.errorItems.update((current) => current.filter((item) => item.id !== id));
   }
 
+  /**
+   * Clears all queued error items.
+   */
   clear() {
     this.errorItems.set([]);
   }
 
+  /**
+   * Creates a stable id for each error notification item.
+   */
   private createId() {
     if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
       return crypto.randomUUID();

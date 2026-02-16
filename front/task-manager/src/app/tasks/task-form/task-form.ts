@@ -3,6 +3,9 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { DatePipe } from '@angular/common';
 import { Task } from '../models/task.model';
 
+/**
+ * Reusable reactive form component for editing task fields.
+ */
 @Component({
   selector: 'app-task-form',
   standalone: true,
@@ -46,11 +49,17 @@ export class TaskForm {
     });
   }
 
+  /**
+   * Cancels editing and resets local form state.
+   */
   cancel() {
     this.showForm.set(false);
     this.form.reset(); // Opcional: limpiar formulario al cancelar
   }
 
+  /**
+   * Validates and emits updated task payload to parent component.
+   */
   saveChanges() {
     if (this.form.invalid) {
       this.form.markAllAsTouched(); // Mostrar errores si faltan campos
